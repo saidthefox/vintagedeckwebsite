@@ -1,0 +1,447 @@
+[
+  {
+    "name": "Grafdigger's Cage",
+    "manaCost": "{1}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Tormod's Crypt",
+    "manaCost": "{0}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Relic of Progenitus",
+    "manaCost": "{1}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Nihil Spellbomb",
+    "manaCost": "{1}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Soul-Guide Lantern",
+    "manaCost": "{1}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Unlicensed Hearse",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Vehicle"
+  },
+  {
+    "name": "Mindbreak Trap",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Instant — Trap"
+  },
+  {
+    "name": "Chalice of the Void",
+    "manaCost": "{X}{X}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Sphere of Resistance",
+    "manaCost": "{2}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Thorn of Amethyst",
+    "manaCost": "{2}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Trinisphere",
+    "manaCost": "{3}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Defense Grid",
+    "manaCost": "{2}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Pithing Needle",
+    "manaCost": "{1}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Sorcerous Spyglass",
+    "manaCost": "{2}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Ratchet Bomb",
+    "manaCost": "{2}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Engineered Explosives",
+    "manaCost": "{X}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Ensnaring Bridge",
+    "manaCost": "{3}",
+    "typeLine": "Artifact"
+  },
+  {
+    "name": "Rest in Peace",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Containment Priest",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Cleric"
+  },
+  {
+    "name": "Sanctifier en-Vec",
+    "manaCost": "{W}{W}",
+    "typeLine": "Creature — Human Cleric"
+  },
+  {
+    "name": "Deafening Silence",
+    "manaCost": "{W}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Rule of Law",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Archon of Emeria",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Archon"
+  },
+  {
+    "name": "Lavinia, Azorius Renegade",
+    "manaCost": "{W}{U}",
+    "typeLine": "Legendary Creature — Human Soldier"
+  },
+  {
+    "name": "Kataki, War's Wage",
+    "manaCost": "{1}{W}",
+    "typeLine": "Legendary Creature — Spirit"
+  },
+  {
+    "name": "Stony Silence",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Disenchant",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Wear // Tear",
+    "manaCost": "{1}{R} // {W}",
+    "typeLine": "Instant // Instant"
+  },
+  {
+    "name": "Swords to Plowshares",
+    "manaCost": "{W}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Prismatic Ending",
+    "manaCost": "{X}{W}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "March of Otherworldly Light",
+    "manaCost": "{X}{W}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Council's Judgment",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Supreme Verdict",
+    "manaCost": "{1}{W}{W}{U}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Wrath of God",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Leyline of Sanctity",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Flusterstorm",
+    "manaCost": "{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Force of Negation",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Force of Will",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Hurkyl's Recall",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Echoing Truth",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Chain of Vapor",
+    "manaCost": "{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Rebuild",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Surgical Extraction",
+    "manaCost": "{B/P}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Mystical Dispute",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Narset's Reversal",
+    "manaCost": "{U}{U}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Leyline of the Void",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Enchantment"
+  },
+  {
+    "name": "Dauthi Voidwalker",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Dauthi Rogue"
+  },
+  {
+    "name": "Extirpate",
+    "manaCost": "{B}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Ravenous Trap",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Instant — Trap"
+  },
+  {
+    "name": "Yixlid Jailer",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Zombie Wizard"
+  },
+  {
+    "name": "Plague Engineer",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Phyrexian Carrier"
+  },
+  {
+    "name": "Fatal Push",
+    "manaCost": "{B}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Cut Down",
+    "manaCost": "{B}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Toxic Deluge",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Thoughtseize",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Duress",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Inquisition of Kozilek",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Opposition Agent",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Rogue"
+  },
+  {
+    "name": "Pyroblast",
+    "manaCost": "{R}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Red Elemental Blast",
+    "manaCost": "{R}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Meltdown",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Shattering Spree",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "By Force",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Abrade",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Brotherhood's End",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Pyroclasm",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Anger of the Gods",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Sorcery"
+  },
+  {
+    "name": "Kozilek's Return",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Sudden Shock",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Force of Vigor",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Nature's Claim",
+    "manaCost": "{G}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Collector Ouphe",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Ouphe"
+  },
+  {
+    "name": "Reclamation Sage",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Shaman"
+  },
+  {
+    "name": "Outland Liberator",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Human Werewolf"
+  },
+  {
+    "name": "Endurance",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Creature — Elemental Incarnation"
+  },
+  {
+    "name": "Veil of Summer",
+    "manaCost": "{G}",
+    "typeLine": "Instant"
+  },
+  {
+    "name": "Teferi, Time Raveler",
+    "manaCost": "{1}{W}{U}",
+    "typeLine": "Legendary Planeswalker — Teferi"
+  },
+  {
+    "name": "Kaya, Orzhov Usurper",
+    "manaCost": "{1}{W}{B}",
+    "typeLine": "Legendary Planeswalker — Kaya"
+  },
+  {
+    "name": "Qasali Pridemage",
+    "manaCost": "{G}{W}",
+    "typeLine": "Creature — Cat Wizard"
+  },
+  {
+    "name": "Gaddock Teeg",
+    "manaCost": "{G}{W}",
+    "typeLine": "Legendary Creature — Kithkin Advisor"
+  },
+  {
+    "name": "Karn, the Great Creator",
+    "manaCost": "{4}",
+    "typeLine": "Legendary Planeswalker — Karn"
+  },
+  {
+    "name": "Hullbreacher",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Merfolk Pirate"
+  },
+  {
+    "name": "Narset, Parter of Veils",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Legendary Planeswalker — Narset"
+  },
+  {
+    "name": "Bojuka Bog",
+    "manaCost": "",
+    "typeLine": "Land"
+  },
+  {
+    "name": "Karakas",
+    "manaCost": "",
+    "typeLine": "Legendary Land"
+  },
+  {
+    "name": "Maze of Ith",
+    "manaCost": "",
+    "typeLine": "Land"
+  },
+  {
+    "name": "The Tabernacle at Pendrell Vale",
+    "manaCost": "",
+    "typeLine": "Legendary Land"
+  },
+  {
+    "name": "Strip Mine",
+    "manaCost": "",
+    "typeLine": "Land"
+  },
+  {
+    "name": "Wasteland",
+    "manaCost": "",
+    "typeLine": "Land"
+  }
+]

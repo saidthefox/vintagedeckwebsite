@@ -1,0 +1,405 @@
+{
+  "deckName": "5cTinker.dec",
+  "format": "Vintage",
+  "mainboard": [
+    {
+      "card": { "name": "Karn, the Great Creator", "manaCost": "{4}", "typeLine": "Planeswalker" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Narset, Parter of Veils", "manaCost": "{1}{U}{U}", "typeLine": "Planeswalker" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Tezzeret the Seeker", "manaCost": "{3}{U}{U}", "typeLine": "Planeswalker" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Tezzeret, Cruel Captain", "manaCost": "{3}", "typeLine": "Planeswalker" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+
+    {
+      "card": { "name": "Blightsteel Colossus", "manaCost": "{12}", "typeLine": "Artifact Creature — Golem" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Snapcaster Mage", "manaCost": "{1}{U}", "typeLine": "Creature — Human" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Trinket Mage", "manaCost": "{2}{U}", "typeLine": "Creature — Human" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Abrupt Decay", "manaCost": "{B}{G}", "typeLine": "Instant" }
+      ]
+    },
+
+    {
+      "card": { "name": "Black Lotus", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Lotus Petal", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mana Crypt", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mana Vault", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Manifold Key", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Emerald", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Jet", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Opal", "manaCost": "{0}", "typeLine": "Legendary Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Pearl", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Ruby", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mox Sapphire", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Sensei's Divining Top", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Sol Ring", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Time Vault", "manaCost": "{2}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Trinisphere", "manaCost": "{3}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Vexing Bauble", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Voltaic Key", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+
+    {
+      "card": { "name": "Ancestral Recall", "manaCost": "{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Brainstorm", "manaCost": "{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Crop Rotation", "manaCost": "{G}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Flusterstorm", "manaCost": "{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Force of Negation", "manaCost": "{1}{U}{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Mindbreak Trap", "manaCost": "{2}{U}{U}", "typeLine": "Instant - Trap" }
+    ]
+    },
+    {
+      "card": { "name": "Force of Will", "manaCost": "{3}{U}{U}", "typeLine": "Instant" },
+      "count": 4,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mental Misstep", "manaCost": "{U/P}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mystical Tutor", "manaCost": "{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Paradoxical Outcome", "manaCost": "{3}{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Pyroblast", "manaCost": "{R}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Vampiric Tutor", "manaCost": "{B}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Veil of Summer", "manaCost": "{G}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+
+    {
+      "card": { "name": "Balance", "manaCost": "{1}{W}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Cabal Therapy", "manaCost": "{B}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Thoughtseize", "manaCost": "{B}", "typeLine": "Sorcery" },
+        { "name": "Duress", "manaCost": "{B}", "typeLine": "Sorcery" },
+        { "name": "Pithing Needle", "manaCost": "{1}", "typeLine": "Artifact" }
+      ]
+    },
+    {
+      "card": { "name": "Demonic Tutor", "manaCost": "{1}{B}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Gitaxian Probe", "manaCost": "{U/P}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Swords to Plowshares", "manaCost": "{W}", "typeLine": "Instant" }
+      ]
+    },
+    {
+      "card": { "name": "Ponder", "manaCost": "{U}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Time Walk", "manaCost": "{1}{U}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Timetwister", "manaCost": "{2}{U}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Tinker", "manaCost": "{2}{U}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+
+    {
+      "card": { "name": "City of Brass", "manaCost": "", "typeLine": "Land" },
+      "count": 4,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Gemstone Mine", "manaCost": "", "typeLine": "Land" },
+      "count": 2,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Mishra's Workshop", "manaCost": "", "typeLine": "Land" }
+      ]
+    },
+    {
+      "card": { "name": "Strip Mine", "manaCost": "", "typeLine": "Land" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": [
+        { "name": "Inventors' Fair", "manaCost": "", "typeLine": "Legendary Land" }
+      ]
+    },
+    {
+      "card": { "name": "Mana Confluence", "manaCost": "", "typeLine": "Land" },
+      "count": 4,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Tolarian Academy", "manaCost": "", "typeLine": "Legendary Land" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Urza's Saga", "manaCost": "", "typeLine": "Enchantment Land — Saga" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    }
+  ],
+  "sideboard": [
+    {
+      "card": { "name": "Abrupt Decay", "manaCost": "{B}{G}", "typeLine": "Instant" },
+      "count": 2,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Archive Trap", "manaCost": "{3}{U}{U}", "typeLine": "Instant — Trap" },
+      "count": 2,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Duress", "manaCost": "{B}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Energy Flux", "manaCost": "{2}{U}", "typeLine": "Enchantment" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Hurkyl's Recall", "manaCost": "{1}{U}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Mycosynth Lattice", "manaCost": "{6}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Pithing Needle", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Portal to Phyrexia", "manaCost": "{9}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Shattering Spree", "manaCost": "{R}", "typeLine": "Sorcery" },
+      "count": 1,
+      "locked": true,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Swords to Plowshares", "manaCost": "{W}", "typeLine": "Instant" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "The Tabernacle at Pendrell Vale", "manaCost": "", "typeLine": "Legendary Land" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Tormod's Crypt", "manaCost": "{0}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    },
+    {
+      "card": { "name": "Voltaic Key", "manaCost": "{1}", "typeLine": "Artifact" },
+      "count": 1,
+      "locked": false,
+      "flexOptions": []
+    }
+  ]
+}

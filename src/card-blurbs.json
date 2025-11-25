@@ -1,0 +1,188 @@
+{
+  "Karn, the Great Creator": {
+    "blurb": "Powerful planeswalker that can lock down opposing artifacts and tutors artifacts from the sideboard. Ultimate protection for the deck with artifact activation lock."
+  },
+  "Narset, Parter of Veils": {
+    "blurb": "Card advantage engine that draws cards and prevents opponents from drawing multiples. Forces discard against decks relying on card draw like Outcome combo."
+  },
+  "Tezzeret the Seeker": {
+    "blurb": "Swiss-army planeswalker for artifact decks. Untaps artifacts, tutors artifacts into play, and can protect itself by making artifacts untargetable."
+  },
+  "Tezzeret, Cruel Captain": {
+    "blurb": "Early planeswalker that damages opponents per artifact and tutors artifacts. Flexible threat that demands answers or threatens damage."
+  },
+  "Blightsteel Colossus": {
+    "blurb": "Infect threat that's uncounterable and unblockable once in play. Primary win condition when tutored via Tinker or other artifact tutors."
+  },
+  "Snapcaster Mage": {
+    "blurb": "Flash creature that flashes back instants and sorceries, adding tempo and enabling instant-speed threats. Turns expensive tutors or countermagic into card advantage."
+  },
+  "Trinket Mage": {
+    "blurb": "Tutors 0-drop artifacts like Lotus Petal or Vexing Bauble. Flexible creature that provides consistency and setup while being a decent body."
+  },
+  "Black Lotus": {
+    "blurb": "The most powerful mana source in Magic. Provides three mana of any combination for one mana, enabling explosive early turns and combo setups."
+  },
+  "Lotus Petal": {
+    "blurb": "Fast mana that sacrifices for one mana. Enables turn-one combo starts and flashing back spells with Snapcaster or cascading effects."
+  },
+  "Mana Crypt": {
+    "blurb": "Zero-cost mana artifact that generates colorless mana each turn. Risk-reward of damage from flipping, but critical for early game acceleration."
+  },
+  "Mana Vault": {
+    "blurb": "Accelerant that produces mana without tapping. Enables turn-two Tinker kills and untaps via Voltaic Key for infinite mana potential."
+  },
+  "Manifold Key": {
+    "blurb": "Versatile artifact that untaps creatures or artifacts and draws cards. Enables Time Vault combos and utility land activation chains."
+  },
+  "Mox Emerald": {
+    "blurb": "Moxen provide free mana acceleration. Generate their respective colors without tapping, enabling explosive starts and full mana on turn one."
+  },
+  "Mox Jet": {
+    "blurb": "Black mox. Provides free black mana for early discard or combo piece assembly."
+  },
+  "Mox Opal": {
+    "blurb": "Affinity artifact that costs zero and produces white mana when artifacts are in play. Core of the fast mana engine."
+  },
+  "Mox Pearl": {
+    "blurb": "White mox providing free white mana for early Balance or other white effects without investing mana."
+  },
+  "Mox Ruby": {
+    "blurb": "Red mox that accelerates into red spells like Pyroblast or Shattering Spree."
+  },
+  "Mox Sapphire": {
+    "blurb": "Blue mox. Provides free blue mana for early cantrips and Force of Will backup."
+  },
+  "Sensei's Divining Top": {
+    "blurb": "Library manipulation that draws cards and controls the top of deck. Works with Tinker tutors and enables scrying for answers."
+  },
+  "Sol Ring": {
+    "blurb": "Two mana acceleration per turn for one slot. The most efficient generic mana rock, enabling explosive turns and early threats."
+  },
+  "Time Vault": {
+    "blurb": "Untapped via Voltaic Key or Manifold Key, generates infinite extra turns. Primary combo win condition once assembled."
+  },
+  "Trinisphere": {
+    "blurb": "Taxing effect that increases spell costs. Sideboard tech against fast combo decks and stores strategies to lock opponents down."
+  },
+  "Vexing Bauble": {
+    "blurb": "Artifact that can trigger Urza's Saga and tutored via Trinket Mage. Can prevent early spell casts, reducing immediate threats."
+  },
+  "Voltaic Key": {
+    "blurb": "Untaps artifacts for Time Vault and Mana Vault combos. Enables infinite mana generation or extra turns when assembled."
+  },
+  "Ancestral Recall": {
+    "blurb": "Instant card draw that refills the hand without a cost. One of the best cantrips in the format for pure card advantage."
+  },
+  "Brainstorm": {
+    "blurb": "Cantrip that draws three and returns two, enabling tutoring setup and deck filtering. Works with Mystical Tutor for instant-speed tutoring."
+  },
+  "Crop Rotation": {
+    "blurb": "Instant-speed land tutoring. Sacrifices a land to fetch any land into play, enabling mana ramp or utility land access. Crucial for finding Tolarian Academy or utility lands in response to threats."
+  },
+  "Flusterstorm": {
+    "blurb": "Cheap blue counterspell that cantrips and generates copies. Flexible protection against fast combo and blue players with multiple spells."
+  },
+  "Force of Negation": {
+    "blurb": "Pitched counterspell that stops future spells without needing mana. Flexible protection against blue opponents and opposing tutors."
+  },
+  "Force of Will": {
+    "blurb": "The best counterspell in Magic. Pitched for free or cast for protection against any spell. Core of the blue control suite."
+  },
+  "Mental Misstep": {
+    "blurb": "Negative cost that counters one-drop spells for free life loss. Strong early game protection against Thoughtseize, discard, and fast plays."
+  },
+  "Mystical Tutor": {
+    "blurb": "Instant-speed library search for any blue card. Pairs with Brainstorm for instant tutoring or finds key answers at instant speed."
+  },
+  "Paradoxical Outcome": {
+    "blurb": "Returns artifacts to hand for card advantage and mana generation. Can be a quick combo kill with enough cheap artifacts and mana sources."
+  },
+  "Pyroblast": {
+    "blurb": "Cheap red instant that counters or damages blue spells and creatures. Flexible protection against blue-heavy metagames."
+  },
+  "Vampiric Tutor": {
+    "blurb": "Black tutoring at instant speed. Finds Tinker, discard effects, or Cabal Therapy setups instantly in response to development."
+  },
+  "Veil of Summer": {
+    "blurb": "Green protection that disenchants and hexproofs a creature against discard. Flexible defense against blue and black control."
+  },
+  "Balance": {
+    "blurb": "Symmetric board wipe that resets resources. Powerful in decks running few creatures and lands versus opposing creature decks."
+  },
+  "Cabal Therapy": {
+    "blurb": "Targetted discard that names a card. Exiles itself from graveyard for additional discard, providing both information and threat removal."
+  },
+  "Demonic Tutor": {
+    "blurb": "Black tutoring for any card in the library. Finds Tinker, discard, or answers without restrictions, enabling any strategy."
+  },
+  "Gitaxian Probe": {
+    "blurb": "Free card draw with phyrexian mana. Reveals opposing hand for information and triggers Snapcaster flashing back instants."
+  },
+  "Ponder": {
+    "blurb": "Blue cantrip that sets up draws and enables tutoring chains. Instant-speed library manipulation for finding threats or answers."
+  },
+  "Time Walk": {
+    "blurb": "Extra turn for just three mana. Historically broken, enabling setup of lethal or advancing position against unprepared opponents."
+  },
+  "Timetwister": {
+    "blurb": "Wheel that shuffles both graveyards back into decks. Breaks symmetry in graveyard matchups and resets hand size for draw-heavy strategies."
+  },
+  "Tinker": {
+    "blurb": "The namesake combo piece. Tutors Blightsteel Colossus into play at instant speed for a fast infect kill."
+  },
+  "City of Brass": {
+    "blurb": "Mana utility land that produces any color for life loss. Supports five-color mana requirements without setback."
+  },
+  "Gemstone Mine": {
+    "blurb": "Multiple color producer similar to City of Brass. Flexible mana source for splashing colors throughout the game."
+  },
+  "Strip Mine": {
+    "blurb": "Land destruction utility. Removes key lands like Academy or Mishra's Workshop from opposing plays."
+  },
+  "Mana Confluence": {
+    "blurb": "Utility land that freely produces any color. Four-of for consistency in five-color mana bases."
+  },
+  "Tolarian Academy": {
+    "blurb": "The namesake engine. Generates mana per instant or sorcery in graveyard, enabling infinite mana combos and card advantage."
+  },
+  "Urza's Saga": {
+    "blurb": "Land that tutors artifacts and creates Constructs. Flexibly searches for key pieces while generating threats."
+  },
+  "Abrupt Decay": {
+    "blurb": "Uncounterable removal for creatures and permanents up to three mana. Flexible answers to Planeswalkers and utility permanents."
+  },
+  "Archive Trap": {
+    "blurb": "Mill trap that exiles opposing libraries from deck. Anti-synergy with self-mill strategies and breaks fetch-land strategies."
+  },
+  "Duress": {
+    "blurb": "Discard effect against non-creature spells. Sideboard card for removing key combo pieces and sorceries from control decks."
+  },
+  "Energy Flux": {
+    "blurb": "Enchantment that taxes untapping artifacts. Sideboard lock against artifact-heavy decks like Outcome builds."
+  },
+  "Hurkyl's Recall": {
+    "blurb": "Bounce effect that resets artifacts and draws cards. Strong against opposing mana bases and slows artifact synergy."
+  },
+  "Mycosynth Lattice": {
+    "blurb": "Makes all cards artifacts for Karn activation. Combines with Karn's lock ability to shut down opposing plays entirely."
+  },
+  "Pithing Needle": {
+    "blurb": "Artifact that names a card and prevents activation. Sideboard tech to lock planeswalkers and utility lands."
+  },
+  "Portal to Phyrexia": {
+    "blurb": "Late-game board wipe that exiles creatures. Clears opposing threats when mana is available for a reset."
+  },
+  "Shattering Spree": {
+    "blurb": "Artifact destruction that cantrips per artifact destroyed. Scales against fast artifact starts and opposing mana."
+  },
+  "Swords to Plowshares": {
+    "blurb": "Instant removal that exiles creatures without affecting board state. Flexible answer to fast creature threats and evasive bodies."
+  },
+  "The Tabernacle at Pendrell Vale": {
+    "blurb": "Land that taxes creature activation. Sideboard land against token and creature-heavy strategies."
+  },
+  "Tormod's Crypt": {
+    "blurb": "Graveyard hate artifact on a zero-drop body. Sideboard tech for decks relying on reanimation or self-mill strategies."
+  }
+}
