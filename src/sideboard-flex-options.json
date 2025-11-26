@@ -443,5 +443,10 @@
     "name": "Wasteland",
     "manaCost": "",
     "typeLine": "Land"
+  },
+  {
+    "name": "Sphinx of the Steel Wind",
+    "manaCost": "{5}{W}{U}{B}",
+    "typeLine": "Artifact Creature — Sphinx"
   }
 ]
