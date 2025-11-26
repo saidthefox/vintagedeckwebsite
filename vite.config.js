@@ -4,5 +4,5 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/" // local-only, no GitHub Pages path stuff
+  base: "/"
 });

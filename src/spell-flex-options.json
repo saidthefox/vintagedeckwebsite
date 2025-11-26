@@ -31,5 +31,10 @@
   { "name": "Dark Ritual", "manaCost": "{B}", "typeLine": "Instant" },
   { "name": "Chalice of the Void", "manaCost": "{X}{X}", "typeLine": "Artifact" },
   { "name": "Hope of Ghirapur", "manaCost": "{1}", "typeLine": "Legendary Artifact Creature — Thopter" },
-  { "name": "Prismatic Ending", "manaCost": "{X}{W}", "typeLine": "Sorcery" }
+  { "name": "Prismatic Ending", "manaCost": "{X}{W}", "typeLine": "Sorcery" },
+  { "name": "Sensei's Divining Top", "manaCost": "{1}", "typeLine": "Artifact" },
+  { "name": "Young Pyromancer", "manaCost": "{1}{R}", "typeLine": "Creature — Human Shaman" },
+  { "name": "Bolas's Citadel", "manaCost": "{3}{B}{B}{B}", "typeLine": "Legendary Artifact" },
+  { "name": "Monastery Mentor", "manaCost": "{2}{W}", "typeLine": "Creature — Human Monk" },
+  { "name": "Sink into Stupor", "manaCost": "{3}{U}", "typeLine": "Sorcery" }
 ]

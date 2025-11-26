@@ -1,12 +1,12 @@
 {
   "Karn, the Great Creator": {
-    "blurb": "Powerful planeswalker that can lock down opposing artifacts and tutors artifacts from the sideboard. Ultimate protection for the deck with artifact activation lock."
+    "blurb": "Land, Lotus, Karn, Go! One sided Null Rod is very strong. It typically wins games. One of your best ways to kill your own Mana Crypt. Minus get anything!"
   },
   "Narset, Parter of Veils": {
     "blurb": "Card advantage engine that draws cards and prevents opponents from drawing multiples. Forces discard against decks relying on card draw like Outcome combo."
   },
   "Tezzeret the Seeker": {
-    "blurb": "Swiss-army planeswalker for artifact decks. Untaps artifacts, tutors artifacts into play, and can protect itself by making artifacts untargetable."
+    "blurb": "I love this card. I got my foil Shards of Alara one in a friend's shop in Orlando, FL like a decade ago now. A lot of the times he is just a tutor, and you know what he is gunna go get. More rarely you'll get weird hands that give you win through +'ing with 4 artifacts on t1. Sometimes +'ing there can be into letting you cast Time Walk. Fun card–will always be well worth the slot to me."
   },
   "Tezzeret, Cruel Captain": {
     "blurb": "Early planeswalker that damages opponents per artifact and tutors artifacts. Flexible threat that demands answers or threatens damage."
@@ -72,13 +72,13 @@
     "blurb": "Untaps artifacts for Time Vault and Mana Vault combos. Enables infinite mana generation or extra turns when assembled."
   },
   "Ancestral Recall": {
-    "blurb": "Instant card draw that refills the hand without a cost. One of the best cantrips in the format for pure card advantage."
+    "blurb": "Very good magic card. It rates high on both axis of blue draw spells: hand extension and card advantage. Hand extension being how good does the card extend the hand for the mana and time invested, and card advantage being getting more cards than you put in. Ancestral Recall is exemplar par excellence in blue draw for a reason. Basically think of it as for one mana you extend your hand by three cards rather than drawing cards."
   },
   "Brainstorm": {
-    "blurb": "Cantrip that draws three and returns two, enabling tutoring setup and deck filtering. Works with Mystical Tutor for instant-speed tutoring."
+    "blurb": "Very good magic card. It is the next best imitation of Ancestral Recall available. If we plot it on the same axis it gives you the same hand extension qualities of Ancestral Recall, as it sees three deep for one mana at instant speed, while less on the card advantage axis in terms of raw cards in hand. Brainstorm still enables the possibility you keep all three of the new cards you see though, and many times its \"downside\" is an upside for certain situations."
   },
   "Crop Rotation": {
-    "blurb": "Instant-speed land tutoring. Sacrifices a land to fetch any land into play, enabling mana ramp or utility land access. Crucial for finding Tolarian Academy or utility lands in response to threats."
+    "blurb": "Basically this is a mini ritual for 2 mana a lot of times to go get Tolarian Academy. It very often will give you the one extra mana you needed to activate Key that turn rather than passing."
   },
   "Flusterstorm": {
     "blurb": "Cheap blue counterspell that cantrips and generates copies. Flexible protection against fast combo and blue players with multiple spells."
@@ -99,19 +99,19 @@
     "blurb": "Returns artifacts to hand for card advantage and mana generation. Can be a quick combo kill with enough cheap artifacts and mana sources."
   },
   "Pyroblast": {
-    "blurb": "Cheap red instant that counters or damages blue spells and creatures. Flexible protection against blue-heavy metagames."
+    "blurb": "Very good magic card. Very close to not being in a flex slot, but sometimes the meta isn't there. It hit's so much that's relevant and can still do stack interaction, which is why it's so good. Abrupt Decay hits a lot of the same permanents you care about with it, and ignores them wanting to counter it, so can be a decent alternative–but missing out on the possibility of hitting their pertinent blue spell hurts."
   },
   "Vampiric Tutor": {
     "blurb": "Black tutoring at instant speed. Finds Tinker, discard effects, or Cabal Therapy setups instantly in response to development."
   },
   "Veil of Summer": {
-    "blurb": "Green protection that disenchants and hexproofs a creature against discard. Flexible defense against blue and black control."
+    "blurb": "Very good magic card. Hexproof for yourself is quietly pretty relevant for those colors, and it's a good protection card to have. Starting off the turn with a Veil of Summer, even if you have nothing else to do, will tell you if your opponent has interaction in hand :)"
   },
   "Balance": {
     "blurb": "Symmetric board wipe that resets resources. Powerful in decks running few creatures and lands versus opposing creature decks."
   },
   "Cabal Therapy": {
-    "blurb": "Targetted discard that names a card. Exiles itself from graveyard for additional discard, providing both information and threat removal."
+    "blurb": "Very good magic card. It doesn't even matter if you hit. Just name the card you care about. If you hit that card, it's pure value. If you don't hit that card, it doesn't matter—unless it does of course—but it typically does not."
   },
   "Demonic Tutor": {
     "blurb": "Black tutoring for any card in the library. Finds Tinker, discard, or answers without restrictions, enabling any strategy."
@@ -120,7 +120,7 @@
     "blurb": "Free card draw with phyrexian mana. Reveals opposing hand for information and triggers Snapcaster flashing back instants."
   },
   "Ponder": {
-    "blurb": "Blue cantrip that sets up draws and enables tutoring chains. Instant-speed library manipulation for finding threats or answers."
+    "blurb": "Very good magic card. After Brainstorm it's the next closest analog to Ancestral, and on the hand extension aspect of things, it does that analog admirably. On the card advantage side of things though, it shines much less. You're typically going to want to see Ponder in lists looking to kill the opponent via looking at more cards and finding the right one, rather than lists that want more cards than their opponent period."
   },
   "Time Walk": {
     "blurb": "Extra turn for just three mana. Historically broken, enabling setup of lethal or advancing position against unprepared opponents."
@@ -132,7 +132,7 @@
     "blurb": "The namesake combo piece. Tutors Blightsteel Colossus into play at instant speed for a fast infect kill."
   },
   "City of Brass": {
-    "blurb": "Mana utility land that produces any color for life loss. Supports five-color mana requirements without setback."
+    "blurb": "Arabian Nights City of Brass will be the most expensive land one day."
   },
   "Gemstone Mine": {
     "blurb": "Multiple color producer similar to City of Brass. Flexible mana source for splashing colors throughout the game."
@@ -141,7 +141,7 @@
     "blurb": "Land destruction utility. Removes key lands like Academy or Mishra's Workshop from opposing plays."
   },
   "Mana Confluence": {
-    "blurb": "Utility land that freely produces any color. Four-of for consistency in five-color mana bases."
+    "blurb": "We will cast our spells! Pretend you have a gagillion life up until you have 2. Once you have two you can only tap your lands one more time before handing your opponent the win yourself."
   },
   "Tolarian Academy": {
     "blurb": "The namesake engine. Generates mana per instant or sorcery in graveyard, enabling infinite mana combos and card advantage."

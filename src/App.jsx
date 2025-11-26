@@ -383,10 +383,18 @@ function App() {
   const [selectedFlex, setSelectedFlex] = useState(null);
   const [sampleHand, setSampleHand] = useState([]);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
+  const [addCardBtnText, setAddCardBtnText] = useState("+1 Card to 61");
+  const [newCardInput, setNewCardInput] = useState({ name: "", manaCost: "", typeLine: "" });
   const mainColumns = useMemo(
     () => buildCmcColumns(mainConfig),
     [mainConfig]
   );
+
+  // Calculate total mainboard cards
+  const mainboardCount = useMemo(() => {
+    return mainConfig.reduce((sum, entry) => sum + (entry.count || 1), 0);
+  }, [mainConfig]);
 
   // Sideboard: single column, sorted by CMC (lands first), then name
   const sideSlots = useMemo(() => {
@@ -495,10 +503,42 @@ function App() {
     }
   };
 
+  const handleAddCardClick = () => {
+    setAddCardBtnText("Nice.");
+    setShowAddCardModal(true);
+  };
+
+  const handleAddCardSubmit = (e) => {
+    e.preventDefault();
+    let manaCost = newCardInput.manaCost.trim();
+    
+    // Auto-wrap mana cost in {}
+    if (manaCost && !manaCost.includes("{")) {
+      const parts = manaCost.split("");
+      manaCost = parts.map(char => `{${char}}`).join("");
+    }
+    
+    const newCard = {
+      card: {
+        name: newCardInput.name.trim(),
+        manaCost: manaCost,
+        typeLine: newCardInput.typeLine.trim()
+      },
+      count: 1,
+      locked: false,
+      flexOptions: spellFlexOptions
+    };
+    
+    setMainConfig([...mainConfig, newCard]);
+    setShowAddCardModal(false);
+    setNewCardInput({ name: "", manaCost: "", typeLine: "" });
+  };
+
   const shuffleAndDraw = () => {
     const cards = [];
     mainConfig.forEach((entry) => {
-      for (let i = 0; i < entry.count; i++) {
+      const count = entry.count || 1;
+      for (let i = 0; i < count; i++) {
         cards.push(entry.card);
       }
     });
@@ -517,7 +557,8 @@ function App() {
     
     // Mainboard
     mainConfig.forEach((entry) => {
-      text += `${entry.count} ${entry.card.name}\n`;
+      const count = entry.count || 1;
+      text += `${count} ${entry.card.name}\n`;
     });
     
     text += "\n";
@@ -553,9 +594,6 @@ function App() {
       <header className="deck-header">
         <div>
           <h1>{deckData.deckName}</h1>
-          <p className="deck-header__subtitle">
-            Format: {deckData.format} · Mainboard: 60 · Sideboard: 15
-          </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <div style={{ position: "relative" }}>
@@ -628,7 +666,19 @@ function App() {
       <div className="deck-layout">
         {/* Mainboard columns */}
         <section className="deck-section">
-          <h2>Mainboard</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+            <h2 style={{ margin: 0 }}>Mainboard: {mainboardCount}</h2>
+            <button
+              onClick={handleAddCardClick}
+              className="btn"
+              style={{
+                padding: "6px 12px",
+                fontSize: "0.8rem"
+              }}
+            >
+              {addCardBtnText}
+            </button>
+          </div>
           <div className="mtgo-main">
             {mainColumns.map((col) => (
               <div key={col.key} className="mtgo-column">
@@ -679,7 +729,7 @@ function App() {
 
         {/* Sideboard on the right */}
         <section className="deck-section deck-section--side">
-          <h2>Sideboard</h2>
+          <h2>Sideboard: 15</h2>
           <div className="grid-side">
             {sideSlots.map((slot, index) => {
               const isStacked = index > 0;
@@ -731,6 +781,78 @@ function App() {
           onChoose={applyFlexChoice}
           onAddCard={handleAddCardToFlex}
         />
+      )}
+
+      {/* Add Card Modal */}
+      {showAddCardModal && (
+        <div className="flex-modal-backdrop" onClick={() => setShowAddCardModal(false)}>
+          <div className="flex-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Add a Card</h3>
+            <p className="muted" style={{ marginBottom: "12px" }}>Enter card details to add to your mainboard</p>
+            <form onSubmit={handleAddCardSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <input
+                type="text"
+                placeholder="Card Name"
+                value={newCardInput.name}
+                onChange={(e) => setNewCardInput({ ...newCardInput, name: e.target.value })}
+                required
+                style={{
+                  padding: "8px",
+                  borderRadius: "6px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "0.9rem"
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Mana Cost (e.g., 1U or {1}{U})"
+                value={newCardInput.manaCost}
+                onChange={(e) => setNewCardInput({ ...newCardInput, manaCost: e.target.value })}
+                required
+                style={{
+                  padding: "8px",
+                  borderRadius: "6px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "0.9rem"
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Type Line (e.g., Instant, Creature — Human)"
+                value={newCardInput.typeLine}
+                onChange={(e) => setNewCardInput({ ...newCardInput, typeLine: e.target.value })}
+                required
+                style={{
+                  padding: "8px",
+                  borderRadius: "6px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "0.9rem"
+                }}
+              />
+              <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                <button
+                  type="submit"
+                  className="btn"
+                  style={{
+                    flex: 1,
+                    background: "#22c55e",
+                    color: "#ffffff"
+                  }}
+                >
+                  Add Card
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCardModal(false)}
+                  className="btn btn--ghost"
+                  style={{ flex: 1 }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
