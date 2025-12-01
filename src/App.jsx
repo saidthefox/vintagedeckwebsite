@@ -198,7 +198,8 @@ const analyzeMulligan = (hand) => {
   const threatCards = [
     "Blightsteel Colossus", "Tinker", "Karn, the Great Creator", 
     "Tezzeret the Seeker", "Tezzeret, Cruel Captain", "Time Vault",
-    "Paradoxical Outcome", "Trinisphere", "Narset, Parter of Veils"
+    "Paradoxical Outcome", "Trinisphere", "Narset, Parter of Veils",
+    "Trinket Mage", "Vexing Bauble"
   ];
   const interactionCards = [
     "Force of Will", "Force of Negation", "Mental Misstep", 
@@ -206,7 +207,8 @@ const analyzeMulligan = (hand) => {
   ];
   const selectionCards = [
     "Ancestral Recall", "Brainstorm", "Ponder", "Mystical Tutor", 
-    "Vampiric Tutor", "Gitaxian Probe", "Demonic Tutor"
+    "Vampiric Tutor", "Gitaxian Probe", "Demonic Tutor",
+    "Trinket Mage", "Sensei's Divining Top"
   ];
 
   hand.forEach(card => {
@@ -400,24 +402,34 @@ const analyzeMulligan = (hand) => {
     winConditions.push("🏆 T1 WIN: Demonic Tutor for Vault + Key combo (6+ mana, can tutor and combo)");
   }
   
-  // 3. Tinker + Blightsteel "go" hand (UU + artifact, can cast Tinker and say go)
+  // 3. Tinker + Blightsteel "go" hand (2U = 3 mana + artifact, can cast Tinker and say go)
   const hasTinker = cardNames.includes("Tinker");
   const hasBlightsteel = cardNames.includes("Blightsteel Colossus");
   
-  if (hasTinker && mana.blue >= 2 && mana.artifacts >= 1) {
+  if (hasTinker && mana.blue >= 1 && mana.totalMana >= 3 && mana.artifacts >= 1) {
     if (hasBlightsteel) {
-      winConditions.push("🏆 LIKELY WIN: Tinker → Blightsteel Colossus (UU available, artifact to sac)");
+      winConditions.push("🏆 LIKELY WIN: Tinker → Blightsteel Colossus (2U available, artifact to sac)");
     } else {
-      winConditions.push("⚠️ Tinker online (UU + artifact) - no Blightsteel in hand");
+      winConditions.push("⚠️ Tinker online (2U + artifact) - no Blightsteel in hand");
     }
   }
   
-  // 4. Tinker + Time Vault + Key (can combo same turn if enough mana after Tinker)
-  if (hasTinker && hasVault && hasKey && mana.blue >= 2 && mana.artifacts >= 1) {
-    // After tinkering for vault, need 2 more mana for key + activation
-    if (mana.totalMana >= 5) { // UU for Tinker + 1 for key + 1 for untap + artifact
-      winConditions.push("🏆 T1 WIN: Tinker for Vault, cast Key, combo off");
-    }
+  // 4. Tinker + Voltaic/Manifold Key (Tinker for Vault, cast Key, combo)
+  // Needs: 2U for Tinker, 1 for Key, 1 for activation = 5 mana + artifact to sac
+  if (hasTinker && hasKey && !hasVault && mana.blue >= 1 && mana.artifacts >= 1 && mana.totalMana >= 5) {
+    winConditions.push("🏆 T1 WIN: Tinker for Time Vault, cast Key, combo off (2U + 2 mana + artifact)");
+  }
+  
+  // 4b. Tinker + Time Vault in hand (Tinker for Key, cast Vault, combo)
+  // Needs: 2U for Tinker, 2 for Vault, 1 for activation = 6 mana + artifact to sac
+  if (hasTinker && hasVault && !hasKey && mana.blue >= 1 && mana.artifacts >= 1 && mana.totalMana >= 6) {
+    winConditions.push("🏆 T1 WIN: Tinker for Voltaic Key, cast Vault, combo off (2U + 3 mana + artifact)");
+  }
+  
+  // 4c. Vault + Key in hand (don't need Tinker, just need mana)
+  // Needs: 2 for Vault, 1 for Key, 1 for activation = 4 mana total
+  if (hasVault && hasKey && mana.totalMana >= 4) {
+    winConditions.push("🏆 T1 WIN: Time Vault + Voltaic Key combo (4 mana total)");
   }
   
   // 5. Tezzeret the Seeker lines (UU3 = 5 mana, 4+ artifacts)
