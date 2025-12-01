@@ -198,7 +198,7 @@ const analyzeMulligan = (hand) => {
   const threatCards = [
     "Blightsteel Colossus", "Tinker", "Karn, the Great Creator", 
     "Tezzeret the Seeker", "Tezzeret, Cruel Captain", "Time Vault",
-    "Paradoxical Outcome"
+    "Paradoxical Outcome", "Trinisphere", "Narset, Parter of Veils"
   ];
   const interactionCards = [
     "Force of Will", "Force of Negation", "Mental Misstep", 
@@ -220,26 +220,82 @@ const analyzeMulligan = (hand) => {
 
   const avgCmc = totalCmc / hand.length;
 
-  // Helper: Calculate available mana on T1
+  // Helper: Calculate ACTUAL mana available on T1 with proper sequencing
   const calculateT1Mana = () => {
     let totalMana = 0;
-    let colorless = 0;
+    let anyColor = 0;
     let blue = 0;
     let black = 0;
     let red = 0;
     let green = 0;
     let white = 0;
+    let colorless = 0;
     let artifacts = 0;
     
-    // Track what we've "used" to generate mana
-    const usedLand = false; // Will track if we use land to cast something
+    // Step 1: Identify free artifacts (0 CMC) that enter play immediately
+    const freeArtifacts = hand.filter(c => 
+      c.typeLine.includes("Artifact") && parseCmc(c.manaCost) === 0
+    );
     
-    hand.forEach(card => {
-      const name = card.name;
+    // Step 2: Identify 1-cost artifacts that could be paid for with Moxen
+    const oneCostArtifacts = hand.filter(c =>
+      c.typeLine.includes("Artifact") && parseCmc(c.manaCost) === 1
+    );
+    
+    // Step 3: Check for lands
+    const hasAcademy = hand.some(c => c.name === "Tolarian Academy");
+    const hasRegularLand = hand.some(c => 
+      c.typeLine.includes("Land") && c.name !== "Tolarian Academy"
+    );
+    
+    // Step 4: Simulate playing out T1
+    let artifactsInPlay = 0;
+    let freeManaAvailable = 0; // Mana from Moxen that can pay for 1-cost artifacts
+    
+    // Play all free artifacts first
+    freeArtifacts.forEach(artifact => {
+      artifactsInPlay++;
+      const name = artifact.name;
       
-      // Lands produce 1 mana
-      if (card.typeLine.includes("Land")) {
-        // Check land type for colors
+      // These provide mana immediately
+      if (name === "Mox Sapphire") { freeManaAvailable++; blue++; }
+      if (name === "Mox Jet") { freeManaAvailable++; black++; }
+      if (name === "Mox Ruby") { freeManaAvailable++; red++; }
+      if (name === "Mox Emerald") { freeManaAvailable++; green++; }
+      if (name === "Mox Pearl") { freeManaAvailable++; white++; }
+      if (name === "Mox Opal") { freeManaAvailable++; colorless++; }
+      if (name === "Mana Crypt") { freeManaAvailable += 2; colorless += 2; }
+      
+      // Lotus and Petal don't tap, they sac for mana (save for later)
+      if (name === "Black Lotus") { anyColor += 3; }
+      if (name === "Lotus Petal") { anyColor += 1; }
+    });
+    
+    // Step 5: Use Mox mana to pay for 1-cost artifacts (like Vexing Bauble)
+    const artifactsPaidFor = Math.min(oneCostArtifacts.length, freeManaAvailable);
+    artifactsInPlay += artifactsPaidFor;
+    
+    // Step 6: If we have Tolarian Academy, it taps for U per artifact
+    if (hasAcademy) {
+      const academyMana = artifactsInPlay;
+      blue += academyMana;
+      totalMana += academyMana;
+      
+      // Also add the Lotus/Petal mana
+      totalMana += anyColor;
+      
+      // And the remaining Mox mana not used to pay for artifacts
+      totalMana += (freeManaAvailable - artifactsPaidFor);
+    } else if (hasRegularLand) {
+      // Regular land + artifact mana
+      totalMana = 1; // Land
+      
+      // Find which land and add its color
+      const landCard = hand.find(c => 
+        c.typeLine.includes("Land") && c.name !== "Tolarian Academy"
+      );
+      if (landCard) {
+        const name = landCard.name;
         if (name.includes("Island") || name === "Underground Sea" || name === "Volcanic Island" || 
             name === "Polluted Delta" || name === "Scalding Tarn" || name === "Flooded Strand" ||
             name === "Mana Confluence" || name === "City of Brass") {
@@ -256,38 +312,70 @@ const analyzeMulligan = (hand) => {
         if (name === "Mana Confluence" || name === "City of Brass") {
           green++;
           white++;
+          // Don't add to anyColor here - that's only for Lotus/Petal
         }
-        totalMana++;
       }
       
-      // Fast mana
-      if (name === "Black Lotus") {
-        totalMana += 3;
-        blue += 3; black += 3; red += 3; green += 3; white += 3; // Can make any color
-      }
-      if (name === "Mox Sapphire") { totalMana++; blue++; }
-      if (name === "Mox Jet") { totalMana++; black++; }
-      if (name === "Mox Ruby") { totalMana++; red++; }
-      if (name === "Mox Emerald") { totalMana++; green++; }
-      if (name === "Mox Pearl") { totalMana++; white++; }
-      if (name === "Mox Opal") { totalMana++; colorless++; artifacts++; }
-      if (name === "Lotus Petal") { totalMana += 1; blue++; black++; red++; green++; white++; }
-      if (name === "Mana Crypt") { totalMana += 2; colorless += 2; }
-      if (name === "Sol Ring") { totalMana += 2; colorless += 2; artifacts++; }
-      if (name === "Mana Vault") { totalMana += 3; colorless += 3; artifacts++; }
-      
-      // Track artifacts for Mox Opal / Tezzeret
-      if (card.typeLine.includes("Artifact")) {
-        artifacts++;
-      }
-    });
+      // Add artifact mana
+      totalMana += freeManaAvailable + anyColor;
+    } else {
+      // No land, just artifact mana
+      totalMana = freeManaAvailable + anyColor;
+    }
     
-    return { totalMana, colorless, blue, black, red, green, white, artifacts };
+    // Step 7: Handle Sol Ring / Mana Vault if we have mana to cast them
+    if (totalMana >= 1) {
+      const hasSolRing = hand.some(c => c.name === "Sol Ring");
+      const hasManaVault = hand.some(c => c.name === "Mana Vault");
+      
+      if (hasSolRing) {
+        totalMana += 1; // Costs 1, makes 2, net +1
+        colorless += 2;
+        artifactsInPlay++;
+      }
+      if (hasManaVault) {
+        totalMana += 2; // Costs 1, makes 3, net +2
+        colorless += 3;
+        artifactsInPlay++;
+      }
+    }
+    
+    // Count total artifacts in hand for Tezzeret/Tinker checks
+    artifacts = hand.filter(c => c.typeLine.includes("Artifact")).length;
+    
+    return { 
+      totalMana, 
+      anyColor,
+      blue, 
+      black, 
+      red, 
+      green, 
+      white, 
+      colorless,
+      artifacts 
+    };
   };
 
   // Check for T1 win conditions
   const winConditions = [];
   const mana = calculateT1Mana();
+  
+  // Special keepable patterns (before win checks)
+  const hasLotus = cardNames.includes("Black Lotus");
+  const hasAncestral = cardNames.includes("Ancestral Recall");
+  const hasMoxen = cardNames.some(name => 
+    ["Mox Sapphire", "Mox Jet", "Mox Ruby", "Mox Emerald", "Mox Pearl", "Mox Opal"].includes(name)
+  );
+  
+  // Pattern: Lotus/Mox + Ancestral = always keep (card selection fixes everything)
+  if ((hasLotus || hasMoxen) && hasAncestral) {
+    winConditions.push("🏆 KEEP: Fast mana + Ancestral Recall (draw 3 to find lands/threats)");
+  }
+  
+  // Pattern: Explosive landless hand with 5+ mana and card draw
+  if (lands === 0 && mana.totalMana >= 5 && cardSelection >= 1) {
+    winConditions.push("✅ KEEP: Explosive landless hand (5+ mana, card selection to find lands)");
+  }
   
   // 1. Time Vault + Voltaic Key combo (needs 4 mana available after playing both)
   const hasVault = cardNames.includes("Time Vault");
@@ -395,6 +483,13 @@ const analyzeMulligan = (hand) => {
   // 11. Time Vault + Tezzeret the Seeker (needs 7 mana: Vault 2, Tezz UU3 = 5)
   if (hasVault && hasTezzeret && mana.totalMana >= 7 && mana.blue >= 2) {
     winConditions.push("🏆 T1 WIN: Time Vault + Tezzeret the Seeker (7 mana, -X for 1 to get Key, untap Vault, combo)");
+  }
+  
+  // 12. T1 Lock piece (Trinisphere or Narset) with counter backup
+  const hasLockPiece = hasTrinisphere || hasNarset;
+  if (hasLockPiece && interaction >= 2 && mana.totalMana >= 3) {
+    const lockPieceName = hasTrinisphere ? "Trinisphere" : "Narset";
+    winConditions.push("🏆 T1 LOCK: " + lockPieceName + " with counter backup (" + interaction + " interaction spells)");
   }
 
   // Decision logic
@@ -924,6 +1019,7 @@ function App() {
   const [addCardBtnText, setAddCardBtnText] = useState("+1 Card to 61");
   const [newCardInput, setNewCardInput] = useState({ name: "", manaCost: "", typeLine: "" });
   const [mulliganAdvice, setMulliganAdvice] = useState(null);
+  const [showHandModal, setShowHandModal] = useState(false);
   const mainColumns = useMemo(
     () => buildCmcColumns(mainConfig),
     [mainConfig]
@@ -1100,6 +1196,11 @@ function App() {
     // Analyze the hand
     const analysis = analyzeMulligan(drawn);
     setMulliganAdvice(analysis);
+    
+    // On mobile, open the hand modal
+    if (isMobile) {
+      setShowHandModal(true);
+    }
   };
 
   const formatDeckAsText = () => {
@@ -1346,27 +1447,120 @@ function App() {
         </section>
       </div>
 
-      {/* Sample hand */}
-      <section className="deck-section">
-        <h2>Sample Hand</h2>
-        {sampleHand.length === 0 ? (
-          <p className="muted">
-            Click "Shuffle &amp; Draw 7" to see a hand.
-          </p>
-        ) : (
-          <>
-            <div className="hand-row">
+      {/* Sample hand - hidden on mobile, shown in modal instead */}
+      {!isMobile && (
+        <section className="deck-section">
+          <h2>Sample Hand</h2>
+          {sampleHand.length === 0 ? (
+            <p className="muted">
+              Click "Shuffle &amp; Draw 7" to see a hand.
+            </p>
+          ) : (
+            <>
+              <div className="hand-row">
+                {sampleHand.map((card, idx) => (
+                  <CardCell
+                    key={`hand-${idx}`}
+                    slot={{ card, locked: true, flexOptions: [] }}
+                    stacked={false}
+                    compact={true}
+                    onHover={setHoveredCard}
+                  />
+                ))}
+              </div>
+              
+              {/* Mulligan Advice */}
+              {mulliganAdvice && (
+                <div style={{
+                  marginTop: "1rem",
+                  padding: "1rem",
+                  background: mulliganAdvice.stats.winConditions > 0 ? "#fff3cd" : 
+                             (mulliganAdvice.decision === "KEEP" ? "#d4edda" : "#f8d7da"),
+                  border: `2px solid ${mulliganAdvice.stats.winConditions > 0 ? "#ffc107" :
+                                       (mulliganAdvice.decision === "KEEP" ? "#28a745" : "#dc3545")}`,
+                  borderRadius: "8px"
+                }}>
+                  <h3 style={{ 
+                    margin: "0 0 0.5rem 0",
+                    color: mulliganAdvice.stats.winConditions > 0 ? "#856404" :
+                           (mulliganAdvice.decision === "KEEP" ? "#155724" : "#721c24"),
+                    fontSize: "1.1rem"
+                  }}>
+                    {mulliganAdvice.stats.winConditions > 0 ? "🏆 KEEP - WIN POSSIBLE!" :
+                     (mulliganAdvice.decision === "KEEP" ? "✅ KEEP" : "🔄 MULLIGAN")}
+                  </h3>
+                  <div style={{ fontSize: "0.9rem", lineHeight: "1.6" }}>
+                    {mulliganAdvice.reasons.map((reason, idx) => (
+                      <div key={idx} style={{
+                        fontWeight: reason.includes("WIN") || reason.includes("🏆") ? 700 : 400,
+                        color: reason.includes("WIN") || reason.includes("🏆") ? "#856404" : "inherit"
+                      }}>
+                        {reason}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ 
+                    marginTop: "0.5rem", 
+                    fontSize: "0.85rem", 
+                    opacity: 0.8,
+                    borderTop: "1px solid rgba(0,0,0,0.1)",
+                    paddingTop: "0.5rem"
+                  }}>
+                    Stats: {mulliganAdvice.stats.lands} lands • {mulliganAdvice.stats.totalMana} total mana • {mulliganAdvice.stats.fastMana} fast mana • {mulliganAdvice.stats.threats} threats • {mulliganAdvice.stats.cardSelection} selection • {mulliganAdvice.stats.interaction} interaction • Avg CMC: {mulliganAdvice.stats.avgCmc}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      )}
+
+      {/* Mobile Hand Modal */}
+      {isMobile && showHandModal && sampleHand.length > 0 && (
+        <div className="flex-modal-backdrop" onClick={() => setShowHandModal(false)}>
+          <div 
+            className="flex-modal" 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "95vw",
+              maxHeight: "85vh",
+              overflow: "auto",
+              background: "rgba(255, 255, 255, 0.98)"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ margin: 0 }}>Sample Hand</h2>
+              <button 
+                onClick={() => setShowHandModal(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: "1.5rem",
+                  cursor: "pointer",
+                  padding: "0 8px"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Hand cards in grid */}
+            <div style={{ 
+              display: "grid", 
+              gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+              gap: "8px",
+              marginBottom: "1rem"
+            }}>
               {sampleHand.map((card, idx) => (
                 <CardCell
-                  key={`hand-${idx}`}
+                  key={`hand-modal-${idx}`}
                   slot={{ card, locked: true, flexOptions: [] }}
                   stacked={false}
-                  compact={true}
-                  onHover={setHoveredCard}
+                  compact={false}
                 />
               ))}
             </div>
-            
+
             {/* Mulligan Advice */}
             {mulliganAdvice && (
               <div style={{
@@ -1408,9 +1602,22 @@ function App() {
                 </div>
               </div>
             )}
-          </>
-        )}
-      </section>
+
+            {/* Draw new hand button */}
+            <button 
+              className="btn" 
+              onClick={shuffleAndDraw}
+              style={{
+                width: "100%",
+                marginTop: "1rem",
+                padding: "12px"
+              }}
+            >
+              🔄 Draw New 7
+            </button>
+          </div>
+        </div>
+      )}
 
       {selectedFlex && (
         <FlexModal
