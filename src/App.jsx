@@ -145,6 +145,323 @@ const buildCmcColumns = (mainConfig) => {
   return result;
 };
 
+// Build mobile list layout: spells sorted by CMC, then lands
+const buildMobileList = (config) => {
+  const items = [];
+  
+  config.forEach((entry, entryIndex) => {
+    const { card, count, locked, flexOptions } = entry;
+    const type = (card.typeLine || "").toLowerCase();
+    const isLand = type.includes("land");
+    const cmc = isLand ? 999 : parseCmc(card.manaCost); // Lands sorted last
+    
+    items.push({
+      zone: "main",
+      entryIndex,
+      locked,
+      flexOptions,
+      card,
+      count,
+      cmc,
+      isLand
+    });
+  });
+  
+  // Sort by CMC (lands last with cmc=999), then by name
+  items.sort((a, b) => {
+    if (a.cmc !== b.cmc) return a.cmc - b.cmc;
+    return a.card.name.localeCompare(b.card.name);
+  });
+  
+  return items;
+};
+
+/* ---------- Mulligan Analyzer ---------- */
+
+const analyzeMulligan = (hand) => {
+  // Categorize cards in hand
+  const cardNames = hand.map(c => c.name);
+  const cardTypes = hand.map(c => c.typeLine);
+  
+  let lands = 0;
+  let fastMana = 0;
+  let threats = 0;
+  let interaction = 0;
+  let cardSelection = 0;
+  let totalCmc = 0;
+
+  const fastManaCards = [
+    "Black Lotus", "Mox Emerald", "Mox Jet", "Mox Opal", "Mox Pearl", 
+    "Mox Ruby", "Mox Sapphire", "Lotus Petal", "Mana Crypt", "Sol Ring", 
+    "Mana Vault"
+  ];
+  const threatCards = [
+    "Blightsteel Colossus", "Tinker", "Karn, the Great Creator", 
+    "Tezzeret the Seeker", "Tezzeret, Cruel Captain", "Time Vault",
+    "Paradoxical Outcome"
+  ];
+  const interactionCards = [
+    "Force of Will", "Force of Negation", "Mental Misstep", 
+    "Flusterstorm", "Pyroblast", "Veil of Summer"
+  ];
+  const selectionCards = [
+    "Ancestral Recall", "Brainstorm", "Ponder", "Mystical Tutor", 
+    "Vampiric Tutor", "Gitaxian Probe", "Demonic Tutor"
+  ];
+
+  hand.forEach(card => {
+    if (card.typeLine.includes("Land")) lands++;
+    if (fastManaCards.includes(card.name)) fastMana++;
+    if (threatCards.includes(card.name)) threats++;
+    if (interactionCards.includes(card.name)) interaction++;
+    if (selectionCards.includes(card.name)) cardSelection++;
+    totalCmc += parseCmc(card.manaCost);
+  });
+
+  const avgCmc = totalCmc / hand.length;
+
+  // Helper: Calculate available mana on T1
+  const calculateT1Mana = () => {
+    let totalMana = 0;
+    let colorless = 0;
+    let blue = 0;
+    let black = 0;
+    let red = 0;
+    let green = 0;
+    let white = 0;
+    let artifacts = 0;
+    
+    // Track what we've "used" to generate mana
+    const usedLand = false; // Will track if we use land to cast something
+    
+    hand.forEach(card => {
+      const name = card.name;
+      
+      // Lands produce 1 mana
+      if (card.typeLine.includes("Land")) {
+        // Check land type for colors
+        if (name.includes("Island") || name === "Underground Sea" || name === "Volcanic Island" || 
+            name === "Polluted Delta" || name === "Scalding Tarn" || name === "Flooded Strand" ||
+            name === "Mana Confluence" || name === "City of Brass") {
+          blue++;
+        }
+        if (name.includes("Swamp") || name === "Underground Sea" || name === "Polluted Delta" ||
+            name === "Mana Confluence" || name === "City of Brass") {
+          black++;
+        }
+        if (name === "Volcanic Island" || name === "Scalding Tarn" || 
+            name === "Mana Confluence" || name === "City of Brass") {
+          red++;
+        }
+        if (name === "Mana Confluence" || name === "City of Brass") {
+          green++;
+          white++;
+        }
+        totalMana++;
+      }
+      
+      // Fast mana
+      if (name === "Black Lotus") {
+        totalMana += 3;
+        blue += 3; black += 3; red += 3; green += 3; white += 3; // Can make any color
+      }
+      if (name === "Mox Sapphire") { totalMana++; blue++; }
+      if (name === "Mox Jet") { totalMana++; black++; }
+      if (name === "Mox Ruby") { totalMana++; red++; }
+      if (name === "Mox Emerald") { totalMana++; green++; }
+      if (name === "Mox Pearl") { totalMana++; white++; }
+      if (name === "Mox Opal") { totalMana++; colorless++; artifacts++; }
+      if (name === "Lotus Petal") { totalMana += 1; blue++; black++; red++; green++; white++; }
+      if (name === "Mana Crypt") { totalMana += 2; colorless += 2; }
+      if (name === "Sol Ring") { totalMana += 2; colorless += 2; artifacts++; }
+      if (name === "Mana Vault") { totalMana += 3; colorless += 3; artifacts++; }
+      
+      // Track artifacts for Mox Opal / Tezzeret
+      if (card.typeLine.includes("Artifact")) {
+        artifacts++;
+      }
+    });
+    
+    return { totalMana, colorless, blue, black, red, green, white, artifacts };
+  };
+
+  // Check for T1 win conditions
+  const winConditions = [];
+  const mana = calculateT1Mana();
+  
+  // 1. Time Vault + Voltaic Key combo (needs 4 mana available after playing both)
+  const hasVault = cardNames.includes("Time Vault");
+  const hasKey = cardNames.includes("Voltaic Key") || cardNames.includes("Manifold Key");
+  
+  if (hasVault && hasKey) {
+    // Vault costs 2, Key costs 1, need 1 to untap = 4 total
+    // But need to account for using mana to cast them
+    const vaultCost = 2;
+    const keyCost = 1;
+    const activationCost = 1;
+    const netManaNeeded = vaultCost + keyCost + activationCost; // 4 mana
+    
+    if (mana.totalMana >= netManaNeeded) {
+      winConditions.push("🏆 T1 WIN: Time Vault + Key combo with " + mana.totalMana + " mana available!");
+    }
+  }
+  
+  // 2. Demonic Tutor + Key + enough mana to tutor for Vault and combo (need 6+ mana)
+  const hasDemonicTutor = cardNames.includes("Demonic Tutor");
+  if (hasDemonicTutor && hasKey && mana.totalMana >= 6 && mana.black >= 1) {
+    winConditions.push("🏆 T1 WIN: Demonic Tutor for Vault + Key combo (6+ mana, can tutor and combo)");
+  }
+  
+  // 3. Tinker + Blightsteel "go" hand (UU + artifact, can cast Tinker and say go)
+  const hasTinker = cardNames.includes("Tinker");
+  const hasBlightsteel = cardNames.includes("Blightsteel Colossus");
+  
+  if (hasTinker && mana.blue >= 2 && mana.artifacts >= 1) {
+    if (hasBlightsteel) {
+      winConditions.push("🏆 LIKELY WIN: Tinker → Blightsteel Colossus (UU available, artifact to sac)");
+    } else {
+      winConditions.push("⚠️ Tinker online (UU + artifact) - no Blightsteel in hand");
+    }
+  }
+  
+  // 4. Tinker + Time Vault + Key (can combo same turn if enough mana after Tinker)
+  if (hasTinker && hasVault && hasKey && mana.blue >= 2 && mana.artifacts >= 1) {
+    // After tinkering for vault, need 2 more mana for key + activation
+    if (mana.totalMana >= 5) { // UU for Tinker + 1 for key + 1 for untap + artifact
+      winConditions.push("🏆 T1 WIN: Tinker for Vault, cast Key, combo off");
+    }
+  }
+  
+  // 5. Tezzeret the Seeker lines (UU3 = 5 mana, 4+ artifacts)
+  const hasTezzeret = cardNames.includes("Tezzeret the Seeker");
+  if (hasTezzeret && mana.blue >= 2 && mana.totalMana >= 5 && mana.artifacts >= 4) {
+    winConditions.push("🏆 POSSIBLE WIN: Tezzeret the Seeker (UU3 available, 4+ artifacts for metalcraft)");
+  }
+  
+  // 6. Mystical Tutor / Vampiric Tutor for combo pieces
+  const hasMysticalTutor = cardNames.includes("Mystical Tutor");
+  const hasVampiricTutor = cardNames.includes("Vampiric Tutor");
+  
+  if ((hasMysticalTutor || hasVampiricTutor) && hasVault && mana.totalMana >= 5) {
+    winConditions.push("⚠️ Can tutor for Key with Vault in hand (5+ mana available)");
+  }
+  
+  // 7. T1 Karn, the Great Creator (needs 4 mana, ideally colorless)
+  const hasKarn = cardNames.includes("Karn, the Great Creator");
+  if (hasKarn && mana.totalMana >= 4) {
+    winConditions.push("🏆 T1 KEEP: Karn, the Great Creator (4 mana available, can wish for threats/answers)");
+  }
+  
+  // 8. T1 Narset + Trinisphere lock (needs UU1 for Narset = 3, 3 for Trinisphere = 6 total)
+  const hasNarset = cardNames.includes("Narset, Parter of Veils");
+  const hasTrinisphere = cardNames.includes("Trinisphere");
+  if (hasNarset && hasTrinisphere && mana.totalMana >= 6 && mana.blue >= 2) {
+    winConditions.push("🏆 T1 LOCK: Narset + Trinisphere (opponent can't draw, can't cast spells efficiently)");
+  }
+  
+  // 9. Trinket Mage lines (castable T1 with UU1 = 3 mana)
+  const hasTrinketMage = cardNames.includes("Trinket Mage");
+  if (hasTrinketMage && mana.totalMana >= 3 && mana.blue >= 2) {
+    // Count mana rocks already in hand (0 or 1 CMC artifacts that make mana)
+    const manaRocksInHand = cardNames.filter(name => 
+      ["Black Lotus", "Mox Sapphire", "Mox Jet", "Mox Ruby", "Mox Emerald", "Mox Pearl",
+       "Mox Opal", "Sol Ring", "Lotus Petal", "Mana Crypt", "Mana Vault"].includes(name)
+    ).length;
+    
+    // Trinket Mage can fetch: Voltaic Key, Manifold Key, Pithing Needle, Tormod's Crypt, etc.
+    // If fetching a mana rock (Sol Ring, Mox Opal) enables casting other cards in hand
+    const expensiveCardsInHand = hand.filter(card => {
+      const cmc = parseCmc(card.manaCost);
+      return cmc >= 4 && !fastManaCards.includes(card.name);
+    });
+    
+    if (hasVault && mana.totalMana >= 7) {
+      // Trinket Mage (3) + Time Vault (2) + fetch Key (1) + activate (1) = 7 mana
+      winConditions.push("🏆 T1 WIN: Trinket Mage → fetch Key, cast Vault, combo (7 mana)");
+    } else if (expensiveCardsInHand.length > 0 && manaRocksInHand < 5) {
+      // Can fetch a mana rock to enable expensive spells
+      winConditions.push("✅ Trinket Mage can fetch mana rock to enable " + expensiveCardsInHand[0].name);
+    } else {
+      winConditions.push("✅ T1 Trinket Mage (can fetch Key, Needle, etc.)");
+    }
+  }
+  
+  // 10. Time Vault + Tezzeret, Cruel Captain (needs 5 mana: Vault 2, Tezz UB1 = 3)
+  const hasTezzCruel = cardNames.includes("Tezzeret, Cruel Captain");
+  if (hasVault && hasTezzCruel && mana.totalMana >= 5 && mana.blue >= 1 && mana.black >= 1) {
+    winConditions.push("🏆 T1 WIN: Time Vault + Tezzeret, Cruel Captain (can -3 to fetch Key, combo next turn or immediately with 7 mana)");
+  }
+  
+  // 11. Time Vault + Tezzeret the Seeker (needs 7 mana: Vault 2, Tezz UU3 = 5)
+  if (hasVault && hasTezzeret && mana.totalMana >= 7 && mana.blue >= 2) {
+    winConditions.push("🏆 T1 WIN: Time Vault + Tezzeret the Seeker (7 mana, -X for 1 to get Key, untap Vault, combo)");
+  }
+
+  // Decision logic
+  const reasons = [];
+  let shouldKeep = true;
+  
+  // If we have a win condition, automatically keep
+  if (winConditions.length > 0) {
+    reasons.push(...winConditions);
+    shouldKeep = true;
+  }
+
+  if (lands === 0) {
+    reasons.push("❌ No lands");
+    if (winConditions.length === 0) shouldKeep = false;
+  } else if (lands > 4) {
+    reasons.push("❌ Too many lands (" + lands + ")");
+    if (winConditions.length === 0) shouldKeep = false;
+  } else if (lands >= 1 && lands <= 3) {
+    reasons.push("✅ Good land count (" + lands + ")");
+  }
+
+  if (fastMana === 0 && lands < 2) {
+    reasons.push("❌ No fast mana and insufficient lands");
+    if (winConditions.length === 0) shouldKeep = false;
+  } else if (fastMana >= 1) {
+    reasons.push("✅ Has fast mana (" + fastMana + ")");
+  }
+
+  if (threats === 0 && cardSelection === 0) {
+    reasons.push("❌ No threats or card selection");
+    if (winConditions.length === 0) shouldKeep = false;
+  }
+
+  if (avgCmc > 3 && fastMana < 2 && lands < 3) {
+    reasons.push("⚠️ Heavy curve (avg " + avgCmc.toFixed(1) + " CMC) without acceleration");
+    if (shouldKeep && winConditions.length === 0) shouldKeep = false;
+  }
+
+  if (threats >= 1) {
+    reasons.push("✅ Has threat (" + threats + ")");
+  }
+
+  if (cardSelection >= 1) {
+    reasons.push("✅ Has card selection (" + cardSelection + ")");
+  }
+
+  if (interaction >= 1) {
+    reasons.push("✅ Has interaction (" + interaction + ")");
+  }
+
+  return {
+    decision: shouldKeep ? "KEEP" : "MULLIGAN",
+    reasons,
+    stats: { 
+      lands, 
+      fastMana, 
+      threats, 
+      interaction, 
+      cardSelection, 
+      avgCmc: avgCmc.toFixed(1),
+      totalMana: mana.totalMana,
+      winConditions: winConditions.length
+    }
+  };
+};
+
 /* ---------- Card Cell ---------- */
 
 const CardCell = ({ slot, stacked = false, compact = false, onClick, onHover }) => {
@@ -213,6 +530,19 @@ const CardCell = ({ slot, stacked = false, compact = false, onClick, onHover }) 
 const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, onAddCard }) => {
   if (!selectedFlex) return null;
 
+  // Detect mobile
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const { zone, entryIndex } = selectedFlex;
   let entry = null;
 
@@ -228,6 +558,7 @@ const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, on
   const [searchTerm, setSearchTerm] = React.useState("");
   const [newCardName, setNewCardName] = React.useState("");
   const [newCardCost, setNewCardCost] = React.useState("");
+  const [newCardType, setNewCardType] = React.useState("");
 
   // Filter flex options based on search
   const filtered = flexOptions.filter(
@@ -236,24 +567,136 @@ const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, on
       opt.manaCost.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Build CMC columns for flex options
+  const flexColumns = React.useMemo(() => {
+    const cols = new Map();
+
+    // Add current card first
+    const currentType = (card.typeLine || "").toLowerCase();
+    const currentIsLand = currentType.includes("land");
+    const currentCmc = currentIsLand ? -1 : parseCmc(card.manaCost);
+    const currentKey = currentIsLand ? "lands" : `cmc-${currentCmc}`;
+
+    if (!cols.has(currentKey)) {
+      cols.set(currentKey, {
+        key: currentKey,
+        label: currentIsLand ? "LANDS" : `CMC ${currentCmc}`,
+        order: currentIsLand ? -1 : currentCmc,
+        items: []
+      });
+    }
+    cols.get(currentKey).items.push({ card, index: -1, isCurrent: true });
+
+    // Add filtered flex options
+    filtered.forEach((opt, idx) => {
+      const type = (opt.typeLine || "").toLowerCase();
+      const isLand = type.includes("land");
+      const cmc = isLand ? -1 : parseCmc(opt.manaCost);
+      const key = isLand ? "lands" : `cmc-${cmc}`;
+
+      if (!cols.has(key)) {
+        cols.set(key, {
+          key,
+          label: isLand ? "LANDS" : `CMC ${cmc}`,
+          order: isLand ? -1 : cmc,
+          items: []
+        });
+      }
+      cols.get(key).items.push({ card: opt, index: idx, isCurrent: false });
+    });
+
+    // Sort columns by order
+    const result = Array.from(cols.values()).sort((a, b) => a.order - b.order);
+
+    // Sort cards within each column by name
+    result.forEach((col) =>
+      col.items.sort((a, b) => a.card.name.localeCompare(b.card.name))
+    );
+
+    return result;
+  }, [card, filtered]);
+
+  // Build mobile list (sorted by CMC, then name)
+  const mobileFlexList = React.useMemo(() => {
+    const items = [];
+    
+    // Add current card first
+    items.push({
+      card,
+      index: -1,
+      isCurrent: true,
+      cmc: parseCmc(card.manaCost),
+      isLand: (card.typeLine || "").toLowerCase().includes("land")
+    });
+    
+    // Add filtered options
+    filtered.forEach((opt, idx) => {
+      const type = (opt.typeLine || "").toLowerCase();
+      const isLand = type.includes("land");
+      items.push({
+        card: opt,
+        index: idx,
+        isCurrent: false,
+        cmc: isLand ? 999 : parseCmc(opt.manaCost),
+        isLand
+      });
+    });
+    
+    // Sort by CMC (lands last), then name
+    items.sort((a, b) => {
+      if (a.cmc !== b.cmc) return a.cmc - b.cmc;
+      return a.card.name.localeCompare(b.card.name);
+    });
+    
+    return items;
+  }, [card, filtered]);
+
   const handleAddCard = () => {
     if (newCardName.trim()) {
       const newCard = {
         name: newCardName,
         manaCost: newCardCost || "",
-        typeLine: ""
+        typeLine: newCardType || ""
       };
       onAddCard(newCard);
       setNewCardName("");
       setNewCardCost("");
+      setNewCardType("");
     }
   };
 
   return (
     <div className="flex-modal-backdrop" onClick={onClose}>
-      <div className="flex-modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Flex slot choice</h3>
-        <p className="muted">Choose which card should occupy this slot.</p>
+      <div className="flex-modal flex-modal--large" onClick={(e) => e.stopPropagation()} style={{
+        background: "rgba(246, 242, 242, 0.1)",
+        backdropFilter: "blur(5px)"
+      }}>
+        {/* Current Card Being Replaced */}
+        <div style={{
+          marginBottom: "16px",
+          padding: "12px",
+          background: "rgba(59, 130, 246, 0.1)",
+          borderRadius: "8px",
+          border: "2px solid #3b82f6"
+        }}>
+          <h3 style={{ margin: "0 0 8px 0", fontSize: "0.9rem", color: "#1e40af" }}>Replacing this card:</h3>
+          <div style={{ display: "inline-block", width: "144px" }}>
+            <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
+              <CardCell 
+                slot={{ 
+                  card, 
+                  locked: false, 
+                  flexOptions: [] 
+                }} 
+                stacked={false}
+                compact={false}
+              />
+            </div>
+          </div>
+        </div>
+
+        <h3 style={{ margin: "0 0 4px 0", fontSize: "1rem" }}>Choose a replacement</h3>
+        <p className="muted" style={{ fontSize: "0.85rem", marginBottom: "8px" }}>Click any card below to swap it in</p>
 
         {/* Search input */}
         <input
@@ -267,30 +710,94 @@ const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, on
             marginBottom: "12px",
             borderRadius: "6px",
             border: "1px solid #e5e7eb",
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             boxSizing: "border-box"
           }}
         />
 
-        <div className="flex-modal__options" style={{ maxHeight: 280, overflowY: "auto", marginBottom: 12 }}>
-          <button className="flex-option" onClick={() => onChoose(-1)}>
-            <div className="flex-option__card-name">{card.name}</div>
-            <div className="flex-option__card-meta">
-              {card.manaCost || " "} · {card.typeLine}
+        {/* CMC Columns Display */}
+        <div style={{ 
+          maxHeight: "500px", 
+          overflowY: "auto", 
+          marginBottom: "12px",
+          padding: "8px"
+        }}>
+          {isMobile ? (
+            /* Mobile scrollable list */
+            <div className="mobile-list">
+              {mobileFlexList.map((item, listIdx) => (
+                <div
+                  key={`mobile-flex-${listIdx}`}
+                  className="mobile-list-item"
+                  onClick={() => item.index >= 0 && onChoose(item.index)}
+                  style={{
+                    cursor: item.index >= 0 ? "pointer" : "default",
+                    opacity: item.isCurrent ? 0.7 : 1,
+                    background: item.isCurrent ? "rgba(59, 130, 246, 0.1)" : "transparent",
+                    border: item.isCurrent ? "2px solid #3b82f6" : "none",
+                    borderRadius: item.isCurrent ? "6px" : "0"
+                  }}
+                >
+                  <span className="mobile-card-name">
+                    {item.card.name}
+                    {item.isCurrent && <span style={{ marginLeft: "8px", color: "#3b82f6", fontSize: "0.75rem", fontWeight: 700 }}>← CURRENT</span>}
+                  </span>
+                  <span className="mobile-card-cmc">CMC {item.cmc === 999 ? '-' : item.cmc}</span>
+                </div>
+              ))}
             </div>
-          </button>
-          {filtered.map((opt, idx) => (
-            <button
-              key={idx}
-              className="flex-option"
-              onClick={() => onChoose(idx)}
-            >
-              <div className="flex-option__card-name">{opt.name}</div>
-              <div className="flex-option__card-meta">
-                {opt.manaCost || " "} · {opt.typeLine}
-              </div>
-            </button>
-          ))}
+          ) : (
+            /* Desktop CMC columns */
+            <div className="mtgo-main" style={{ gap: "6px" }}>
+              {flexColumns.map((col) => (
+                <div key={col.key} className="mtgo-column" style={{ width: "126px" }}>
+                  <div className="mtgo-column__header" style={{ fontSize: "0.8rem" }}>
+                    {col.label} ({col.items.length})
+                  </div>
+                  <div className="mtgo-column__cards">
+                    {col.items.map((item, idx) => {
+                      const isStacked = idx > 0;
+                      return (
+                        <div
+                          key={`${col.key}-${idx}`}
+                          onClick={() => onChoose(item.index)}
+                          style={{ 
+                            cursor: "pointer",
+                            position: "relative"
+                          }}
+                        >
+                          <CardCell 
+                            slot={{ 
+                              card: item.card, 
+                              locked: false, 
+                              flexOptions: [] 
+                            }} 
+                            stacked={isStacked}
+                            compact={false}
+                          />
+                          {item.isCurrent && !isStacked && (
+                            <div style={{
+                              position: "absolute",
+                              top: "4px",
+                              right: "4px",
+                              background: "#3b82f6",
+                              color: "white",
+                              fontSize: "0.6rem",
+                              padding: "2px 5px",
+                              borderRadius: "3px",
+                              fontWeight: 700
+                            }}>
+                              CURRENT
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Add card section */}
@@ -298,14 +805,13 @@ const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, on
           <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", fontWeight: 600 }}>
             Add card
           </p>
-          <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
             <input
               type="text"
               placeholder="Card name"
               value={newCardName}
               onChange={(e) => setNewCardName(e.target.value)}
               style={{
-                flex: 1,
                 padding: "6px 8px",
                 borderRadius: "4px",
                 border: "1px solid #e5e7eb",
@@ -313,20 +819,36 @@ const FlexModal = ({ selectedFlex, mainConfig, sideConfig, onClose, onChoose, on
                 boxSizing: "border-box"
               }}
             />
-            <input
-              type="text"
-              placeholder="Mana cost"
-              value={newCardCost}
-              onChange={(e) => setNewCardCost(e.target.value)}
-              style={{
-                width: "80px",
-                padding: "6px 8px",
-                borderRadius: "4px",
-                border: "1px solid #e5e7eb",
-                fontSize: "0.85rem",
-                boxSizing: "border-box"
-              }}
-            />
+            <div style={{ display: "flex", gap: 6 }}>
+              <input
+                type="text"
+                placeholder="Mana cost"
+                value={newCardCost}
+                onChange={(e) => setNewCardCost(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: "6px 8px",
+                  borderRadius: "4px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "0.85rem",
+                  boxSizing: "border-box"
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Type (e.g., Land, Instant)"
+                value={newCardType}
+                onChange={(e) => setNewCardType(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: "6px 8px",
+                  borderRadius: "4px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "0.85rem",
+                  boxSizing: "border-box"
+                }}
+              />
+            </div>
           </div>
           <button
             onClick={handleAddCard}
@@ -377,6 +899,21 @@ function App() {
       return { ...entry, flexOptions: sideboardFlexOptions };
     });
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [showExportMenu, setShowExportMenu] = React.useState(false);
   const [mainConfig, setMainConfig] = useState(assignFlexOptions(deckData.mainboard));
   const [sideConfig, setSideConfig] = useState(assignSideboardFlexOptions(deckData.sideboard));
@@ -386,10 +923,15 @@ function App() {
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [addCardBtnText, setAddCardBtnText] = useState("+1 Card to 61");
   const [newCardInput, setNewCardInput] = useState({ name: "", manaCost: "", typeLine: "" });
+  const [mulliganAdvice, setMulliganAdvice] = useState(null);
   const mainColumns = useMemo(
     () => buildCmcColumns(mainConfig),
     [mainConfig]
   );
+  
+  // Build mobile list views
+  const mobileMainList = useMemo(() => buildMobileList(mainConfig), [mainConfig]);
+  const mobileSideList = useMemo(() => buildMobileList(sideConfig), [sideConfig]);
 
   // Calculate total mainboard cards
   const mainboardCount = useMemo(() => {
@@ -518,15 +1060,18 @@ function App() {
       manaCost = parts.map(char => `{${char}}`).join("");
     }
     
+    const typeLine = newCardInput.typeLine.trim();
+    const isLand = typeLine.toLowerCase().includes("land");
+    
     const newCard = {
       card: {
         name: newCardInput.name.trim(),
         manaCost: manaCost,
-        typeLine: newCardInput.typeLine.trim()
+        typeLine: typeLine
       },
       count: 1,
       locked: false,
-      flexOptions: spellFlexOptions
+      flexOptions: isLand ? landFlexOptions : spellFlexOptions
     };
     
     setMainConfig([...mainConfig, newCard]);
@@ -549,7 +1094,12 @@ function App() {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
-    setSampleHand(shuffled.slice(0, 7));
+    const drawn = shuffled.slice(0, 7);
+    setSampleHand(drawn);
+    
+    // Analyze the hand
+    const analysis = analyzeMulligan(drawn);
+    setMulliganAdvice(analysis);
   };
 
   const formatDeckAsText = () => {
@@ -679,32 +1229,55 @@ function App() {
               {addCardBtnText}
             </button>
           </div>
-          <div className="mtgo-main">
-            {mainColumns.map((col) => (
-              <div key={col.key} className="mtgo-column">
-                <div className="mtgo-column__header">
-                  {col.label} ({col.items.length})
+          
+          {isMobile ? (
+            /* Mobile list layout */
+            <div className="mobile-list">
+              {mobileMainList.map((item) => (
+                <div 
+                  key={`mobile-main-${item.entryIndex}`}
+                  className="mobile-list-item"
+                  onClick={() => handleCardClick("main", item.entryIndex)}
+                  style={{
+                    cursor: item.flexOptions && item.flexOptions.length > 0 ? "pointer" : "default",
+                    opacity: item.flexOptions && item.flexOptions.length > 0 ? 1 : 0.7
+                  }}
+                >
+                  <span className="mobile-card-name">{item.card.name}</span>
+                  <span className="mobile-card-cmc">CMC {item.cmc === 999 ? '-' : item.cmc}</span>
+                  <span className="mobile-card-count">×{item.count}</span>
                 </div>
-                <div className="mtgo-column__cards">
-                  {col.items.map((slot, idx) => {
-                    const isStacked = idx > 0; // everything except the first card
-                    return (
-                      <CardCell
-                        key={`${col.key}-${slot.entryIndex}-${idx}`}
-                        slot={slot}
-                        stacked={isStacked}
-                        compact={false}
-                        onClick={() =>
-                          handleCardClick("main", slot.entryIndex)
-                        }
-                        onHover={setHoveredCard}
-                      />
-                    );
-                  })}
+              ))}
+            </div>
+          ) : (
+            /* Desktop MTGO columns */
+            <div className="mtgo-main">
+              {mainColumns.map((col) => (
+                <div key={col.key} className="mtgo-column">
+                  <div className="mtgo-column__header">
+                    {col.label} ({col.items.length})
+                  </div>
+                  <div className="mtgo-column__cards">
+                    {col.items.map((slot, idx) => {
+                      const isStacked = idx > 0; // everything except the first card
+                      return (
+                        <CardCell
+                          key={`${col.key}-${slot.entryIndex}-${idx}`}
+                          slot={slot}
+                          stacked={isStacked}
+                          compact={false}
+                          onClick={() =>
+                            handleCardClick("main", slot.entryIndex)
+                          }
+                          onHover={setHoveredCard}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Card blurb display - positioned under mainboard */}
           {hoveredCard && cardBlurbs[hoveredCard.name] && (
@@ -730,23 +1303,46 @@ function App() {
         {/* Sideboard on the right */}
         <section className="deck-section deck-section--side">
           <h2>Sideboard: 15</h2>
-          <div className="grid-side">
-            {sideSlots.map((slot, index) => {
-              const isStacked = index > 0;
-              return (
-                <CardCell
-                  key={`side-${index}`}
-                  slot={slot}
-                  stacked={isStacked}
-                  compact={false}
-                  onClick={() =>
-                    handleCardClick("side", slot.entryIndex)
-                  }
-                  onHover={setHoveredCard}
-                />
-              );
-            })}
-          </div>
+          
+          {isMobile ? (
+            /* Mobile list layout */
+            <div className="mobile-list">
+              {mobileSideList.map((item) => (
+                <div 
+                  key={`mobile-side-${item.entryIndex}`}
+                  className="mobile-list-item"
+                  onClick={() => handleCardClick("side", item.entryIndex)}
+                  style={{
+                    cursor: item.flexOptions && item.flexOptions.length > 0 ? "pointer" : "default",
+                    opacity: item.flexOptions && item.flexOptions.length > 0 ? 1 : 0.7
+                  }}
+                >
+                  <span className="mobile-card-name">{item.card.name}</span>
+                  <span className="mobile-card-cmc">CMC {item.cmc === 999 ? '-' : item.cmc}</span>
+                  <span className="mobile-card-count">×{item.count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Desktop grid */
+            <div className="grid-side">
+              {sideSlots.map((slot, index) => {
+                const isStacked = index > 0;
+                return (
+                  <CardCell
+                    key={`side-${index}`}
+                    slot={slot}
+                    stacked={isStacked}
+                    compact={false}
+                    onClick={() =>
+                      handleCardClick("side", slot.entryIndex)
+                    }
+                    onHover={setHoveredCard}
+                  />
+                );
+              })}
+            </div>
+          )}
         </section>
       </div>
 
@@ -755,20 +1351,64 @@ function App() {
         <h2>Sample Hand</h2>
         {sampleHand.length === 0 ? (
           <p className="muted">
-            Click “Shuffle &amp; Draw 7” to see a hand.
+            Click "Shuffle &amp; Draw 7" to see a hand.
           </p>
         ) : (
-          <div className="hand-row">
-            {sampleHand.map((card, idx) => (
-              <CardCell
-                key={`hand-${idx}`}
-                slot={{ card, locked: true, flexOptions: [] }}
-                stacked={false}
-                compact={true}
-                onHover={setHoveredCard}
-              />
-            ))}
-          </div>
+          <>
+            <div className="hand-row">
+              {sampleHand.map((card, idx) => (
+                <CardCell
+                  key={`hand-${idx}`}
+                  slot={{ card, locked: true, flexOptions: [] }}
+                  stacked={false}
+                  compact={true}
+                  onHover={setHoveredCard}
+                />
+              ))}
+            </div>
+            
+            {/* Mulligan Advice */}
+            {mulliganAdvice && (
+              <div style={{
+                marginTop: "1rem",
+                padding: "1rem",
+                background: mulliganAdvice.stats.winConditions > 0 ? "#fff3cd" : 
+                           (mulliganAdvice.decision === "KEEP" ? "#d4edda" : "#f8d7da"),
+                border: `2px solid ${mulliganAdvice.stats.winConditions > 0 ? "#ffc107" :
+                                     (mulliganAdvice.decision === "KEEP" ? "#28a745" : "#dc3545")}`,
+                borderRadius: "8px"
+              }}>
+                <h3 style={{ 
+                  margin: "0 0 0.5rem 0",
+                  color: mulliganAdvice.stats.winConditions > 0 ? "#856404" :
+                         (mulliganAdvice.decision === "KEEP" ? "#155724" : "#721c24"),
+                  fontSize: "1.1rem"
+                }}>
+                  {mulliganAdvice.stats.winConditions > 0 ? "🏆 KEEP - WIN POSSIBLE!" :
+                   (mulliganAdvice.decision === "KEEP" ? "✅ KEEP" : "🔄 MULLIGAN")}
+                </h3>
+                <div style={{ fontSize: "0.9rem", lineHeight: "1.6" }}>
+                  {mulliganAdvice.reasons.map((reason, idx) => (
+                    <div key={idx} style={{
+                      fontWeight: reason.includes("WIN") || reason.includes("🏆") ? 700 : 400,
+                      color: reason.includes("WIN") || reason.includes("🏆") ? "#856404" : "inherit"
+                    }}>
+                      {reason}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ 
+                  marginTop: "0.5rem", 
+                  fontSize: "0.85rem", 
+                  opacity: 0.8,
+                  borderTop: "1px solid rgba(0,0,0,0.1)",
+                  paddingTop: "0.5rem"
+                }}>
+                  Stats: {mulliganAdvice.stats.lands} lands • {mulliganAdvice.stats.totalMana} total mana • {mulliganAdvice.stats.fastMana} fast mana • {mulliganAdvice.stats.threats} threats • {mulliganAdvice.stats.cardSelection} selection • {mulliganAdvice.stats.interaction} interaction • Avg CMC: {mulliganAdvice.stats.avgCmc}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </section>
 
