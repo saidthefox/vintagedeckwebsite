@@ -288,7 +288,7 @@
       "flexOptions": []
     },
     {
-      "card": { "name": "Gemstone Mine", "manaCost": "", "typeLine": "Land" },
+      "card": { "name": "Starting Town", "manaCost": "", "typeLine": "Land" },
       "count": 2,
       "locked": false,
       "flexOptions": [
