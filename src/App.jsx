@@ -384,6 +384,7 @@ const IMPORTANT_CASTS = new Set([
   "Voltaic Key",
   "Manifold Key",
   "Time Vault",
+  "Crop Rotation",
 
   // Payoffs / engines
   "Tinker",
@@ -394,6 +395,8 @@ const IMPORTANT_CASTS = new Set([
   "Tezzeret the Seeker",
   "Tezzeret, Cruel Captain",
   "Trinket Mage",
+  "Balance",
+  "Timetwister",
 
   // Selection / tutors
   "Ancestral Recall",
@@ -470,6 +473,7 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
 
   const scoreState = (state) => {
     const names = new Set(state.battlefield.map((c) => c.name));
+    const handNames = new Set(state.hand.map((c) => c.name));
     const poolTotal = sumMana(state.pool);
 
     const hasVault = names.has("Time Vault");
@@ -486,15 +490,122 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
 
     const tinkerWin = state.notes.some((n) => n.includes("Tinker → Blightsteel"));
 
+    // Trinket Mage + Time Vault combo (both in hand, not on battlefield)
+    // Trinket Mage (3) → fetch Key, cast Key (1), cast Vault (2), activate (1) = 7 mana total
+    const trinketVaultWin = 
+      handNames.has("Trinket Mage") && 
+      handNames.has("Time Vault") && 
+      !names.has("Trinket Mage") &&
+      !names.has("Time Vault") &&
+      poolTotal >= 7;
+
+    // Demonic Tutor + Time Vault combo (both in hand, not on battlefield)
+    // Demonic Tutor (1B) → fetch Key, cast Key (1), cast Vault (2), activate (1) = 5 mana + B
+    const demonicVaultWin = 
+      handNames.has("Demonic Tutor") && 
+      handNames.has("Time Vault") && 
+      !names.has("Time Vault") &&
+      !handNames.has("Voltaic Key") &&
+      !handNames.has("Manifold Key") &&
+      poolTotal >= 5 &&
+      state.pool.B >= 1; // Need at least 1 black for Demonic Tutor
+
+    // Vault + Key combo with Demonic Tutor for Force backup
+    // Have Vault + Key + Demonic + blue card, tutor for Force, cast combo with protection
+    // Need: 2 for Vault, 1 for Key, 1 for activate, 1B for Demonic = 5 mana + B
+    const vaultKeyForceBackup = 
+      (handNames.has("Time Vault") || names.has("Time Vault")) &&
+      (handNames.has("Voltaic Key") || handNames.has("Manifold Key") || 
+       names.has("Voltaic Key") || names.has("Manifold Key")) &&
+      handNames.has("Demonic Tutor") &&
+      !handNames.has("Force of Will") &&
+      state.hand.some(c => {
+        const cost = c.manaCost || "";
+        return cost.includes("{U}") && c.name !== "Demonic Tutor";
+      }) &&
+      poolTotal >= 5 &&
+      state.pool.B >= 1;
+
+    // Trinket Mage for Vexing Bauble (strong T1 lock piece)
+    // Trinket Mage (UU1 = 3) → fetch Bauble, cast Bauble (1) = 4 mana + UU
+    const trinketBauble = 
+      handNames.has("Trinket Mage") && 
+      !names.has("Trinket Mage") &&
+      !names.has("Vexing Bauble") &&
+      !handNames.has("Vexing Bauble") &&
+      poolTotal >= 4 &&
+      state.pool.U >= 1; // Need at least 1 blue for Trinket Mage
+
+    // Tezzeret Cruel Captain for Vexing Bauble (strong T1 lock piece)
+    // Tezzeret (3 any color) → tutor 0-1 cost artifact (Bauble), cast Bauble (1) = 4 mana
+    const tezzBauble = 
+      handNames.has("Tezzeret, Cruel Captain") && 
+      !names.has("Tezzeret, Cruel Captain") &&
+      !names.has("Vexing Bauble") &&
+      !handNames.has("Vexing Bauble") &&
+      poolTotal >= 4;
+
+    // Tezzeret the Seeker + Time Walk combo
+    // Cast Tezz (UU3 = 5), +1 to untap 2 artifacts, use them for Time Walk (1U), take extra turn, ult Tezz (-5)
+    // Artifacts become 5/5s and swing for lethal (need ~4 artifacts for 20 damage)
+    // Need: UU3 for Tezz, 2 artifacts that can make 1U, Time Walk in hand, 4+ artifacts total
+    const tezzTimeWalkWin = 
+      (handNames.has("Tezzeret the Seeker") || names.has("Tezzeret the Seeker")) &&
+      handNames.has("Time Walk") &&
+      state.pool.U >= 2 &&
+      poolTotal >= 5 &&
+      state.battlefield.filter(c => isArtifact(c)).length >= 4 &&
+      // Check if we have 2+ artifacts that can produce mana
+      state.battlefield.filter(c => {
+        if (!isArtifact(c)) return false;
+        const kind = manaPermanentKind(c.name);
+        return kind === "mox" || kind === "crypt" || kind === "ring" || kind === "vault" || kind === "opal";
+      }).length >= 2;
+
+    // Balance combo: cast 4+ cards, then Balance to force opponent discard
+    // Balance costs 1W, equalizes hands/creatures/lands
+    // Cast count includes tutors/spells that don't leave permanents
+    const balanceCombo = 
+      handNames.has("Balance") &&
+      state.cast.length >= 4 &&
+      state.hand.length <= 3 && // 2 cards left after Balance is cast
+      poolTotal >= 2 &&
+      state.pool.W >= 1;
+
     // "Big T1" plays.
     const big =
       names.has("Karn, the Great Creator") ||
       names.has("Narset, Parter of Veils") ||
+      names.has("Tezzeret, Cruel Captain") || // Tutors for 0-1 cost artifacts
       names.has("Trinisphere") ||
-      names.has("Paradoxical Outcome");
+      names.has("Vexing Bauble") || // Lock piece like Trinisphere
+      state.cast.includes("Paradoxical Outcome") || // PO is instant, check cast history
+      names.has("Timetwister") ||
+      balanceCombo ||
+      trinketBauble ||
+      tezzBauble;
 
     // Casting any selection/tutor is usually enough to call the hand functional.
     const castSelection = state.cast.some((n) => isSelectionSpell(n));
+
+    // Holding up instant-speed Ancestral Recall with Force of Will backup is extremely strong
+    // Better than tapping out for tutors - you get 3 cards at instant speed with protection
+    // Force can be cast for free (pitch blue card) so tapping out doesn't matter
+    const ancestralWithForce = 
+      handNames.has("Ancestral Recall") &&
+      handNames.has("Force of Will") &&
+      poolTotal >= 1 &&
+      state.pool.U >= 1;
+
+    // Instant-speed tutor (Mystical/Vampiric) + Tinker setup
+    // Can tutor EOT for Tinker, draw it, cast it next turn
+    // Need: instant tutor in hand, 3+ artifacts for Tinker, enough mana for tutor + Tinker (U + 2U = 3U or U + 1B)
+    const tutorForTinker = 
+      (handNames.has("Mystical Tutor") || handNames.has("Vampiric Tutor")) &&
+      !handNames.has("Tinker") &&
+      state.battlefield.filter(c => isArtifact(c)).length >= 3 && // Need artifacts to sac for Tinker
+      ((handNames.has("Mystical Tutor") && state.pool.U >= 1 && poolTotal >= 4) || // Mystical (U) + Tinker (2U) = 3U total
+       (handNames.has("Vampiric Tutor") && state.pool.B >= 1 && poolTotal >= 3)); // Vampiric (B) + Tinker (2U) = B + 2U
 
     // Basic stability: have a land or at least 2 permanent mana sources in play.
     const permanentMana = state.battlefield.filter((c) => {
@@ -509,15 +620,17 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
 
     // A very simple scoring.
     let score = 0;
-    if (infiniteTurns || tinkerWin) score += 1000;
+    if (infiniteTurns || tinkerWin || trinketVaultWin || demonicVaultWin || vaultKeyForceBackup || tezzTimeWalkWin) score += 1000;
     if (big) score += 200;
+    if (ancestralWithForce) score += 150; // Higher than castSelection
+    if (tutorForTinker) score += 120; // Strong setup for next turn win
     if (castSelection) score += 60;
     score += Math.min(60, poolTotal * 10);
     score += Math.min(30, permanentMana * 4);
 
-    const tier = infiniteTurns || tinkerWin ? 3 : big ? 2 : castSelection || poolTotal >= 2 ? 1 : 0;
+    const tier = infiniteTurns || tinkerWin || trinketVaultWin || demonicVaultWin || vaultKeyForceBackup || tezzTimeWalkWin ? 3 : big ? 2 : castSelection || poolTotal >= 2 ? 1 : 0;
 
-    return { score, tier, flags: { infiniteTurns, tinkerWin, big, castSelection } };
+    return { score, tier, flags: { infiniteTurns, tinkerWin, trinketVaultWin, demonicVaultWin, vaultKeyForceBackup, tezzTimeWalkWin, big, castSelection } };
   };
 
   const describePool = (p) => {
@@ -759,6 +872,50 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
           next.notes = [...next.notes, `Cast ${c.name}`];
 
           // Very lightweight "resolved spell" effects:
+          // - Paradoxical Outcome: bounce all artifacts, return them to hand, replay 0-cost ones
+          if (c.name === "Paradoxical Outcome") {
+            const artifactsToBounce = next.battlefield.filter((p) => isArtifact(p));
+            const bouncedCount = artifactsToBounce.length;
+            
+            if (bouncedCount > 0) {
+              // Return artifacts to hand
+              next.battlefield = next.battlefield.filter((p) => !isArtifact(p));
+              next.hand = [...next.hand, ...artifactsToBounce.map(p => ({ name: p.name, typeLine: p.typeLine, manaCost: p.manaCost }))];
+              
+              // Replay 0-cost artifacts immediately
+              const zeroCosters = next.hand.filter((h) => isArtifact(h) && parseCmc(h.manaCost) === 0);
+              if (zeroCosters.length > 0) {
+                next.hand = next.hand.filter((h) => !zeroCosters.includes(h));
+                next.battlefield = [
+                  ...next.battlefield,
+                  ...zeroCosters.map(z => ({ ...z, _id: uniqId(), tapped: false, zone: "battlefield" }))
+                ];
+              }
+              
+              next.notes = [...next.notes, `PO → bounce ${bouncedCount} artifacts, draw ${bouncedCount}, replay ${zeroCosters.length} free artifacts`];
+            }
+          }
+
+          // - Crop Rotation: sacrifice a land to fetch Tolarian Academy (if artifacts in play)
+          if (c.name === "Crop Rotation") {
+            const hasLandToSac = next.battlefield.some((p) => isLand(p));
+            const artifactsCount = next.battlefield.filter((p) => isArtifact(p)).length;
+            
+            if (hasLandToSac && artifactsCount >= 2 && deckIndex.hasInMain("Tolarian Academy")) {
+              // Sacrifice a land (remove first land found)
+              const landToSac = next.battlefield.find((p) => isLand(p));
+              next.battlefield = next.battlefield.filter((p) => p._id !== landToSac._id);
+              
+              // Fetch Tolarian Academy into play untapped
+              next.battlefield = [
+                ...next.battlefield,
+                { name: "Tolarian Academy", typeLine: "Land", _id: uniqId(), tapped: false, zone: "battlefield" }
+              ];
+              
+              next.notes = [...next.notes, `Crop Rotation → sacrifice ${landToSac.name}, fetch Tolarian Academy (${artifactsCount} artifacts)`];
+            }
+          }
+
           // - If we cast Tinker and deck has Blightsteel in main (and not in hand), mark it.
           if (c.name === "Tinker") {
             const hasSacArtifact = next.battlefield.some((p) => isArtifact(p) && p.name !== "Blightsteel Colossus");
