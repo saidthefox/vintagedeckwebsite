@@ -1061,7 +1061,15 @@ const analyzeMulligan = ({ hand, deckIndex }) => {
   else if (sim.tier === 1) {
     if (lands >= 1 || selection >= 2) decision = "KEEP";
   } else {
+    // Tier 0: even with no coherent line, keep if you have lands + interaction + selection
+    // OR if you have 3+ fast mana + payoff + selection (0-land special case)
+    const fastMana = hand.filter((c) => {
+      const cmc = parseCmc(c.manaCost);
+      return isArtifact(c) && (cmc === 0 || cmc === 1) && manaPermanentKind(c.name);
+    }).length;
+    
     if (lands >= 2 && interaction >= 1 && selection >= 1) decision = "KEEP";
+    else if (fastMana >= 3 && payoff >= 1 && selection >= 1) decision = "KEEP"; // 0-land keep
   }
 
   // Expose a short, readable line summary.
