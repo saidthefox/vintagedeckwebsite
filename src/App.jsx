@@ -545,6 +545,22 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
       !handNames.has("Vexing Bauble") &&
       poolTotal >= 4;
 
+    // Tezzeret Cruel Captain + Trinisphere combo
+    // Cast Tezzeret (3), +1 to untap mana artifact (Sol Ring/Mana Vault/Mana Crypt), tap for 2-3 mana, cast Trinisphere (3)
+    // Untapping Sol Ring/Crypt gives 2 mana back, so need 3 + 3 - 2 = 4 total
+    // Untapping Mana Vault gives 3 mana back, so need 3 + 3 - 3 = 3 total (but realistically 4+ safer)
+    const tezzTrinisphere = 
+      handNames.has("Tezzeret, Cruel Captain") &&
+      handNames.has("Trinisphere") &&
+      !names.has("Tezzeret, Cruel Captain") &&
+      !names.has("Trinisphere") &&
+      state.battlefield.filter(c => {
+        if (!isArtifact(c)) return false;
+        const kind = manaPermanentKind(c.name);
+        return kind === "crypt" || kind === "ring" || kind === "vault";
+      }).length >= 1 &&
+      poolTotal >= 4;
+
     // Tezzeret the Seeker + Time Walk combo
     // Cast Tezz (UU3 = 5), +1 to untap 2 artifacts, use them for Time Walk (1U), take extra turn, ult Tezz (-5)
     // Artifacts become 5/5s and swing for lethal (need ~4 artifacts for 20 damage)
@@ -583,7 +599,8 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
       names.has("Timetwister") ||
       balanceCombo ||
       trinketBauble ||
-      tezzBauble;
+      tezzBauble ||
+      tezzTrinisphere;
 
     // Casting any selection/tutor is usually enough to call the hand functional.
     const castSelection = state.cast.some((n) => isSelectionSpell(n));
@@ -596,6 +613,14 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
       handNames.has("Force of Will") &&
       poolTotal >= 1 &&
       state.pool.U >= 1;
+
+    // Gitaxian Probe + Cabal Therapy combo
+    // Cast Probe (free, 2 life) to see opponent's hand, then Therapy (B) to name a card
+    // Better than blind tutoring - you get information and disruption
+    const probeTherapy = 
+      handNames.has("Gitaxian Probe") &&
+      handNames.has("Cabal Therapy") &&
+      state.pool.B >= 1;
 
     // Instant-speed tutor (Mystical/Vampiric) + Tinker setup
     // Can tutor EOT for Tinker, draw it, cast it next turn
@@ -623,6 +648,7 @@ const simulateTurn1 = ({ hand, deckIndex }) => {
     if (infiniteTurns || tinkerWin || trinketVaultWin || demonicVaultWin || vaultKeyForceBackup || tezzTimeWalkWin) score += 1000;
     if (big) score += 200;
     if (ancestralWithForce) score += 150; // Higher than castSelection
+    if (probeTherapy) score += 130; // Information + disruption combo
     if (tutorForTinker) score += 120; // Strong setup for next turn win
     if (castSelection) score += 60;
     score += Math.min(60, poolTotal * 10);
